@@ -14,7 +14,6 @@ export const loader: LoaderFunction = async ({ request, context }) => {
 export const LoginPage: React.FC = () => {
   return (
     <div>
-      <h1>Login Page</h1>
       <Form action="/google" method="post">
         <button>sign in with google</button>
       </Form>
