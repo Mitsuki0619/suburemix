@@ -6,11 +6,9 @@ import {
 import { Authenticator } from 'remix-auth'
 import { GoogleStrategy } from 'remix-auth-google'
 
-import { prisma } from '~/lib/db'
-
 let _authenticatedUser: Authenticator<User> | null = null
 
-export function getAuthenticator(context: AppLoadContext) {
+export function getAuthenticator(context: AppLoadContext): Authenticator<User> {
   if (_authenticatedUser === null) {
     const sessionStorage = createCookieSessionStorage({
       cookie: {
@@ -30,13 +28,14 @@ export function getAuthenticator(context: AppLoadContext) {
         callbackURL: context.cloudflare.env.GOOGLE_CALLBACK_BASE_URL,
       },
       async ({ profile }) => {
-        const user = await prisma.user.findUnique({
+        const db = context.db
+        const user = await db.user.findUnique({
           where: { email: profile.emails[0].value },
         })
         if (user) {
           return user
         }
-        const newUser = await prisma.user.create({
+        const newUser = await db.user.create({
           data: {
             id: profile.id,
             email: profile.emails[0].value || '',

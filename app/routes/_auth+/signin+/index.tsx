@@ -1,17 +1,15 @@
 import type { LoaderFunction } from '@remix-run/cloudflare'
 
-import { redirect, json } from '@remix-run/cloudflare'
 import { Form } from '@remix-run/react'
 
 import { getAuthenticator } from '~/services/auth.server'
 
 export const loader: LoaderFunction = async ({ request, context }) => {
   const authenticator = getAuthenticator(context)
-  const user = await authenticator.isAuthenticated(request)
-  if (user) {
-    return redirect('/')
-  }
-  return json({})
+  await authenticator.isAuthenticated(request, {
+    successRedirect: '/',
+  })
+  return {}
 }
 export const LoginPage: React.FC = () => {
   return (
