@@ -1,22 +1,20 @@
-import type { LoaderFunction } from '@remix-run/cloudflare'
-
-import { Form } from '@remix-run/react'
+import { LoaderFunctionArgs, json } from '@remix-run/cloudflare'
 
 import { getAuthenticator } from '~/services/auth.server'
 
-export const loader: LoaderFunction = async ({ request, context }) => {
+import { SignInUpFormCard } from '../_components/SignInUpFormCard'
+
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const authenticator = getAuthenticator(context)
-  await authenticator.isAuthenticated(request, {
-    successRedirect: '/',
-  })
-  return {}
+  const user = await authenticator.isAuthenticated(request)
+  return json({ user })
 }
 export const LoginPage: React.FC = () => {
   return (
-    <div>
-      <Form action="/google" method="post">
-        <button>sign in with google</button>
-      </Form>
+    <div className="grid place-content-center ">
+      <div className="mt-40">
+        <SignInUpFormCard />
+      </div>
     </div>
   )
 }
