@@ -17,7 +17,7 @@ export function getAuthenticator(context: AppLoadContext): Authenticator<User> {
         path: '/',
         httpOnly: true,
         secrets: [context.cloudflare.env.SESSION_SECRET],
-        secure: import.meta.env.PROD,
+        secure: true,
       },
     })
     _authenticatedUser = new Authenticator<User>(sessionStorage)
