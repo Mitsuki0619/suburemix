@@ -11,6 +11,7 @@ import { getLoadContext } from './load-context'
 import { ReactCompilerConfig } from './react-compiler.config'
 
 export default defineConfig({
+  optimizeDeps: { exclude: ['@mapbox/node-pre-gyp'] },
   plugins: [
     remixCloudflareDevProxy({ getLoadContext }),
     remix({

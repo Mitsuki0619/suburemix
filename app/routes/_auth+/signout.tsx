@@ -1,6 +1,6 @@
 import { ActionFunctionArgs } from '@remix-run/cloudflare'
 
-import { getAuthenticator } from '~/services/auth.server'
+import { getAuthenticator } from '~/services/auth/auth.server'
 
 export const action = async ({ context, request }: ActionFunctionArgs) => {
   const authenticator = getAuthenticator(context)
