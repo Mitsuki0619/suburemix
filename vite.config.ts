@@ -12,7 +12,6 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 import { ReactCompilerConfig } from './react-compiler.config'
 
 export default defineConfig({
-  optimizeDeps: { exclude: ['@mapbox/node-pre-gyp'] },
   ssr: {
     resolve: {
       externalConditions: ['workerd', 'worker'],
