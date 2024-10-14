@@ -3,7 +3,7 @@ import { json, LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { Outlet, redirect, useLoaderData } from '@remix-run/react'
 
 import { Layout } from '~/components/layout'
-import { getAuthenticator } from '~/services/auth.server'
+import { getAuthenticator } from '~/services/auth/auth.server'
 
 export type UserForClient = Pick<
   User,
