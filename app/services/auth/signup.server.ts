@@ -1,5 +1,5 @@
 import { AppLoadContext } from '@remix-run/cloudflare'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 export const createUser = async (
   context: AppLoadContext,

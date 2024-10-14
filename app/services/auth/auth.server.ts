@@ -3,7 +3,7 @@ import {
   AppLoadContext,
   createCookieSessionStorage,
 } from '@remix-run/cloudflare'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { Authenticator, AuthorizationError } from 'remix-auth'
 import { FormStrategy } from 'remix-auth-form'
 import { GoogleStrategy } from 'remix-auth-google'
