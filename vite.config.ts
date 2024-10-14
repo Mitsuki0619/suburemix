@@ -1,3 +1,5 @@
+import devServer, { defaultOptions } from '@hono/vite-dev-server'
+import adapter from '@hono/vite-dev-server/cloudflare'
 import {
   vitePlugin as remix,
   cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
@@ -7,13 +9,16 @@ import { defineConfig } from 'vite'
 import babel from 'vite-plugin-babel'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
-import { getLoadContext } from './load-context'
 import { ReactCompilerConfig } from './react-compiler.config'
 
 export default defineConfig({
   optimizeDeps: { exclude: ['@mapbox/node-pre-gyp'] },
+  ssr: {
+    resolve: {
+      externalConditions: ['workerd', 'worker'],
+    },
+  },
   plugins: [
-    remixCloudflareDevProxy({ getLoadContext }),
     remix({
       ignoredRouteFiles: ['**/*'],
       routes: async (defineRoutes) => {
@@ -24,6 +29,12 @@ export default defineConfig({
         v3_relativeSplatPath: true,
         v3_throwAbortReason: true,
       },
+    }),
+    devServer({
+      adapter,
+      entry: 'server.ts',
+      exclude: [...defaultOptions.exclude, '/assets/**', '/app/**'],
+      injectClientScript: false,
     }),
     tsconfigPaths(),
     babel({

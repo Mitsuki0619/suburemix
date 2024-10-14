@@ -6,7 +6,7 @@
   "scripts": {
     "build": "remix vite:build",
     "deploy": "pnpm run build && wrangler pages deploy",
-    "dev": "remix vite:dev",
+    "dev": "vite",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "lint:fix": "eslint --fix --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "fmt": "prettier . --write",
@@ -32,6 +32,7 @@
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "hono": "^4.6.4",
     "isbot": "^4.1.0",
     "lucide-react": "^0.447.0",
     "react": "19.0.0-rc-1460d67c-20241003",
@@ -39,12 +40,14 @@
     "remix-auth": "^3.7.0",
     "remix-auth-form": "^1.5.0",
     "remix-auth-google": "^2.0.0",
+    "remix-hono": "^0.0.16",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241004.0",
+    "@hono/vite-dev-server": "^0.16.0",
     "@prisma/client": "^5.20.0",
     "@remix-run/dev": "^2.12.0",
     "@types/bcrypt": "^5.0.2",
