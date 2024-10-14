@@ -1,6 +1,4 @@
-import { createPagesFunctionHandler } from '@remix-run/cloudflare-pages'
+import { handle } from 'hono/cloudflare-pages'
 
-import { getLoadContext } from 'load-context'
-
-import * as build from '../build/server'
-export const onRequest = createPagesFunctionHandler({ build, getLoadContext })
+import server from '../server'
+export const onRequest = handle(server)
