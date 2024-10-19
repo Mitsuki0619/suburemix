@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { UserForClient } from '~/routes/_index'
+import { UserForClient } from '~/routes/_public+/_layout'
 
 import { Header } from './header'
 
