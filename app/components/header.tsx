@@ -1,6 +1,6 @@
 import { Form, Link } from '@remix-run/react'
 
-import { UserForClient } from '~/routes/_index'
+import { UserForClient } from '~/routes/_public+/_layout'
 
 import { Button } from './ui/button'
 
@@ -11,7 +11,7 @@ interface Props {
 export const Header = ({ user }: Props) => {
   return (
     <header>
-      <h1>ms tech blog</h1>
+      <h1>Hello {user?.name}!</h1>
       <nav>
         <Link to="/">Home</Link>
         {user ? (

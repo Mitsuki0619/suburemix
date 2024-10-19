@@ -24,7 +24,7 @@ export default function App() {
   const user = useLoaderData<typeof loader>()
   return (
     <Layout user={user}>
-      <Outlet />
+      <Outlet context={user} />
     </Layout>
   )
 }
