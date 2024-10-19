@@ -9,10 +9,12 @@ import {
   Form,
   useActionData,
   useLoaderData,
+  useNavigation,
   useOutletContext,
 } from '@remix-run/react'
 import { z } from 'zod'
 
+import { Button } from '~/components/ui/button'
 import { Textarea } from '~/components/ui/textarea'
 import { PostList } from '~/features/posts/components/PostList'
 import { getAuthenticator } from '~/services/auth/auth.server'
@@ -41,7 +43,11 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
         return submission.reply()
       }
       if (!user) {
-        return json(submission.reply())
+        return json(
+          submission.reply({
+            fieldErrors: { content: ['You must be signed in to post'] },
+          })
+        )
       }
       await createPost(context, {
         content: String(formData.get('content')),
@@ -55,7 +61,11 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
         return submission.reply()
       }
       if (!user) {
-        return json(submission.reply())
+        return json(
+          submission.reply({
+            fieldErrors: { id: ['You must be signed in to delete a post'] },
+          })
+        )
       }
       await deletePost(context, {
         postId: Number(formData.get('id')),
@@ -75,6 +85,7 @@ export default function PostListPage() {
   const lastResult = useActionData<typeof action>()
   const posts = useLoaderData<typeof loader>()
   const user = useOutletContext<UserForClient>()
+  const navigation = useNavigation()
 
   const [form, { content }] = useForm({
     lastResult,
@@ -85,30 +96,45 @@ export default function PostListPage() {
     shouldRevalidate: 'onInput',
   })
 
+  const postContentProps = getInputProps(content, { type: 'text' })
+
   return (
     <div>
       <h1>Posts</h1>
       <div>
         <PostList posts={posts} user={user} />
       </div>
-      <Form method="post" {...getFormProps(form)}>
-        <div>
-          <Textarea
-            {...getInputProps(content, { type: 'text' })}
-            key={getInputProps(content, { type: 'text' }).key}
-          />
-          {content.errors && (
-            <div>
-              {content.errors.map((error, index) => (
-                <p key={index} className="text-sm text-red-500">
-                  {error}
-                </p>
-              ))}
-            </div>
-          )}
-        </div>
-        <button type="submit">Post</button>
-      </Form>
+      <div className="relative">
+        {!user && (
+          <div className="w-full h-full absolute top-0 left-0 bg-white bg-opacity-50">
+            <p className="text-black">You must be signed in to post</p>
+          </div>
+        )}
+        <Form method="post" {...getFormProps(form)}>
+          <div>
+            <Textarea
+              {...postContentProps}
+              disabled={!user}
+              key={postContentProps.key}
+            />
+            {content.errors && (
+              <div>
+                {content.errors.map((error, index) => (
+                  <p key={index} className="text-sm text-red-500">
+                    {error}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+          <Button
+            type="submit"
+            disabled={!user || navigation.state === 'submitting'}
+          >
+            Post
+          </Button>
+        </Form>
+      </div>
     </div>
   )
 }

@@ -3,7 +3,6 @@ import { SerializeFrom } from '@remix-run/cloudflare'
 
 import { UserForClient } from '~/routes/_public+/_layout'
 
-import { MyPostItem } from './MyPostItem'
 import { PostItem } from './PostItem'
 
 interface Props {
@@ -16,11 +15,7 @@ export const PostList = ({ posts, user }: Props) => {
     <ul>
       {posts.map((post) => (
         <li key={post.id}>
-          {user && user.id === post.authorId ? (
-            <MyPostItem post={post} />
-          ) : (
-            <PostItem post={post} />
-          )}
+          <PostItem post={post} user={user} />
         </li>
       ))}
     </ul>
