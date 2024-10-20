@@ -12,14 +12,17 @@ import {
   useNavigation,
   useOutletContext,
 } from '@remix-run/react'
+import { Send } from 'lucide-react'
 import { z } from 'zod'
 
 import { Button } from '~/components/ui/button'
+import { ScrollArea } from '~/components/ui/scroll-area'
 import { Textarea } from '~/components/ui/textarea'
-import { PostList } from '~/features/posts/components/PostList'
+import { PostItem } from '~/features/posts/components/PostItem'
 import { getAuthenticator } from '~/services/auth/auth.server'
 import { createPost } from '~/services/post/createPost.server'
 import { deletePost } from '~/services/post/deletePost.server'
+import { getPosts } from '~/services/post/getPosts.server'
 
 import { UserForClient } from '../_layout'
 
@@ -77,7 +80,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 }
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
-  const posts = await context.db.post.findMany()
+  const posts = await getPosts(context)
   return json(posts)
 }
 
@@ -86,7 +89,6 @@ export default function PostListPage() {
   const posts = useLoaderData<typeof loader>()
   const user = useOutletContext<UserForClient>()
   const navigation = useNavigation()
-
   const [form, { content }] = useForm({
     lastResult,
     onValidate({ formData }) {
@@ -95,43 +97,41 @@ export default function PostListPage() {
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',
   })
-
   const postContentProps = getInputProps(content, { type: 'text' })
 
   return (
-    <div>
-      <h1>Posts</h1>
-      <div>
-        <PostList posts={posts} user={user} />
-      </div>
-      <div className="relative">
-        {!user && (
-          <div className="w-full h-full absolute top-0 left-0 bg-white bg-opacity-50">
-            <p className="text-black">You must be signed in to post</p>
-          </div>
-        )}
-        <Form method="post" {...getFormProps(form)}>
-          <div>
+    <div className="w-full max-w-xl mx-auto h-[650px] flex flex-col bg-background ">
+      <ScrollArea className="flex-grow p-4">
+        {posts.map((post) => (
+          <PostItem key={post.id} post={post} user={user} />
+        ))}
+      </ScrollArea>
+      <div className="p-4">
+        <Form
+          method="post"
+          {...getFormProps(form)}
+          className="flex w-full items-center space-x-2"
+        >
+          <div className="flex-grow">
             <Textarea
               {...postContentProps}
-              disabled={!user}
               key={postContentProps.key}
+              disabled={navigation.state === 'submitting' || !user}
+              className="min-h-[80px]"
             />
-            {content.errors && (
-              <div>
-                {content.errors.map((error, index) => (
-                  <p key={index} className="text-sm text-red-500">
-                    {error}
-                  </p>
-                ))}
-              </div>
-            )}
+            {content.errors?.map((error, index) => (
+              <p className="text-sm text-destructive mt-1" key={index}>
+                {error}
+              </p>
+            ))}
           </div>
           <Button
             type="submit"
+            size="icon"
             disabled={!user || navigation.state === 'submitting'}
           >
-            Post
+            <Send className="h-4 w-4" />
+            <span className="sr-only">Send</span>
           </Button>
         </Form>
       </div>

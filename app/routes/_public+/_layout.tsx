@@ -8,7 +8,7 @@ import { getAuthenticator } from '~/services/auth/auth.server'
 export type UserForClient = Pick<
   User,
   'email' | 'name' | 'id' | 'role' | 'image'
->
+> | null
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const authenticator = getAuthenticator(context)
