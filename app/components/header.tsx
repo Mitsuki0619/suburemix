@@ -16,7 +16,8 @@ export const Header = ({ user }: Props) => {
         <Link to="/">Home</Link>
         {user ? (
           <>
-            <Link to="/posts/create">New Post</Link>
+            <Link to="/blog">Blog</Link>
+            <Link to="/posts">Posts</Link>
             <Form method="post" action="/signout">
               <Button variant="outline">Sign out</Button>
             </Form>
