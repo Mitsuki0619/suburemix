@@ -26,7 +26,7 @@ import { createPost } from '~/services/post/createPost.server'
 import { deletePost } from '~/services/post/deletePost.server'
 import { getPosts } from '~/services/post/getPosts.server'
 
-import { UserForClient } from '../_layout'
+import { UserForClient } from './_layout'
 
 export const schemaForCreatePost = z.object({
   content: z
@@ -86,7 +86,7 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
   return json(posts)
 }
 
-export default function PostListPage() {
+export default function Index() {
   const lastResult = useActionData<typeof action>()
   const posts = useLoaderData<typeof loader>()
   const user = useOutletContext<UserForClient>()
