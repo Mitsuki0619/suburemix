@@ -1,5 +1,6 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
+import { ReloadIcon } from '@radix-ui/react-icons'
 import {
   ActionFunctionArgs,
   json,
@@ -11,6 +12,7 @@ import {
   useLoaderData,
   useNavigation,
   useOutletContext,
+  useRevalidator,
 } from '@remix-run/react'
 import { Send } from 'lucide-react'
 import { z } from 'zod'
@@ -88,6 +90,7 @@ export default function PostListPage() {
   const lastResult = useActionData<typeof action>()
   const posts = useLoaderData<typeof loader>()
   const user = useOutletContext<UserForClient>()
+  const revalidator = useRevalidator()
   const navigation = useNavigation()
   const [form, { content }] = useForm({
     lastResult,
@@ -106,6 +109,17 @@ export default function PostListPage() {
           <PostItem key={post.id} post={post} user={user} />
         ))}
       </ScrollArea>
+      <div className="w-full">
+        <Button
+          variant="ghost"
+          className="flex gap-1 mx-auto"
+          type="button"
+          onClick={() => revalidator.revalidate()}
+        >
+          <span>Reload</span>
+          <ReloadIcon />
+        </Button>
+      </div>
       <div className="p-4">
         <Form
           method="post"
