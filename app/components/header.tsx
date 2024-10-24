@@ -62,7 +62,7 @@ export const Header = ({ user }: HeaderProps) => {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <Link to={`/profile/${user.id}`}>
+                    <Link to={`/${user.id}/profile`} className="w-full flex">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </Link>
