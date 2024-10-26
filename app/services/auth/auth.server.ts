@@ -1,4 +1,4 @@
-import { User } from '@prisma/client/edge'
+import { User, Prisma } from '@prisma/client/edge'
 import {
   AppLoadContext,
   createCookieSessionStorage,
@@ -7,6 +7,8 @@ import bcrypt from 'bcryptjs'
 import { Authenticator, AuthorizationError } from 'remix-auth'
 import { FormStrategy } from 'remix-auth-form'
 import { GoogleStrategy } from 'remix-auth-google'
+
+import { getPosts } from '~/services/post/getPosts.server'
 
 type UserForClient = Omit<
   User,

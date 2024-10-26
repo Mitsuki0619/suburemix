@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 
-import { UserForClient } from '~/routes/_public+/_layout'
+import { cn } from '~/lib/utils'
+import { UserForClient } from '~/routes/_auth+/_layout'
 
 import { Header } from './header'
 
@@ -11,9 +12,9 @@ export interface LayoutProps {
 
 export const Layout = ({ children, user }: LayoutProps) => {
   return (
-    <div>
+    <div className={cn('h-screen flex flex-col bg-background text-foreground')}>
       <Header user={user} />
-      {children}
+      <div className="flex-1 flex overflow-hidden">{children}</div>
     </div>
   )
 }

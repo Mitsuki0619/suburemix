@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
-import { UserForClient } from '~/routes/_public+/_layout'
+import { UserForClient } from '~/routes/_auth+/_layout'
 
 interface HeaderProps {
   user: UserForClient | null
