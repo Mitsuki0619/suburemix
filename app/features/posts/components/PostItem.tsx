@@ -8,7 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '~/components/ui/popover'
-import { UserForClient } from '~/routes/_public+/_layout'
+import { UserForClient } from '~/routes/_public+/posts_/_layout'
 import { GetPostsResponse } from '~/services/post/getPosts.server'
 
 interface Props {
