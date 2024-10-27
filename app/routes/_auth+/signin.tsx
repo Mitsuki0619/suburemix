@@ -81,8 +81,8 @@ export const SignInPage: React.FC = () => {
   })
 
   return (
-    <div className="grid place-content-center ">
-      <div className="mt-40">
+    <div className="w-full h-full grid place-content-center ">
+      <div>
         <Card className="w-[400px]">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl">Sign in</CardTitle>
