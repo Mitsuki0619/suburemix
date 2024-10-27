@@ -5,7 +5,7 @@ import {
   LoaderFunctionArgs,
   json,
 } from '@remix-run/cloudflare'
-import { Form, useActionData } from '@remix-run/react'
+import { Form, useActionData, Link } from '@remix-run/react'
 import { z } from 'zod'
 
 import { Icons } from '~/components/icons'
@@ -16,6 +16,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -85,13 +86,13 @@ export const SignUpPage: React.FC = () => {
   })
 
   return (
-    <div className="grid place-content-center ">
-      <div className="mt-40">
+    <div className="grid place-content-center w-full h-full">
+      <div>
         <Card className="w-[400px]">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl">Sign in</CardTitle>
+            <CardTitle className="text-2xl">Sign up</CardTitle>
             <CardDescription>
-              Enter your email below to create your account
+              Enter your details below to create your account
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
@@ -99,7 +100,7 @@ export const SignUpPage: React.FC = () => {
               <Form action="/google" method="post">
                 <Button variant="outline" className="w-full">
                   <Icons.google className="mr-2 h-4 w-4" />
-                  Sign in with Google
+                  Sign up with Google
                 </Button>
               </Form>
             </div>
@@ -113,12 +114,16 @@ export const SignUpPage: React.FC = () => {
                 </span>
               </div>
             </div>
-            <Form method="post" {...getFormProps(form)}>
+            <Form
+              method="post"
+              {...getFormProps(form)}
+              className="flex flex-col gap-4"
+            >
               <div className="grid gap-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
                   {...getInputProps(name, { type: 'text' })}
-                  placeholder="m@example.com"
+                  placeholder="John Doe"
                 />
                 {name.errors && (
                   <div>
@@ -160,10 +165,18 @@ export const SignUpPage: React.FC = () => {
                 )}
               </div>
               <Button type="submit" name="_action" className="w-full">
-                Sign in
+                Sign up
               </Button>
             </Form>
           </CardContent>
+          <CardFooter className="flex justify-center">
+            <p className="text-sm text-muted-foreground">
+              Already have an account?{' '}
+              <Link to="/signin" className="text-primary hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </CardFooter>
         </Card>
       </div>
     </div>
