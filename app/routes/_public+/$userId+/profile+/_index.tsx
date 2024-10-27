@@ -10,7 +10,6 @@ import {
   useActionData,
   useLoaderData,
   useNavigation,
-  useRevalidator,
 } from '@remix-run/react'
 import { Camera, Save } from 'lucide-react'
 import { z } from 'zod'

@@ -5,7 +5,7 @@ import {
   LoaderFunctionArgs,
   json,
 } from '@remix-run/cloudflare'
-import { Form, useActionData } from '@remix-run/react'
+import { Form, useActionData, Link } from '@remix-run/react'
 import { z } from 'zod'
 
 import { Icons } from '~/components/icons'
@@ -16,6 +16,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -109,7 +110,11 @@ export const SignInPage: React.FC = () => {
                 </span>
               </div>
             </div>
-            <Form method="post" {...getFormProps(form)}>
+            <Form
+              method="post"
+              {...getFormProps(form)}
+              className="flex flex-col gap-4"
+            >
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -144,9 +149,18 @@ export const SignInPage: React.FC = () => {
               </Button>
             </Form>
           </CardContent>
+          <CardFooter className="flex justify-center">
+            <p className="text-sm text-muted-foreground">
+              Don&apos;t have an account?{' '}
+              <Link to="/signup" className="text-primary hover:underline">
+                Sign up
+              </Link>
+            </p>
+          </CardFooter>
         </Card>
       </div>
     </div>
   )
 }
+
 export default SignInPage
