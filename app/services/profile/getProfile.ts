@@ -5,7 +5,7 @@ export const getProfile = async (
   context: AppLoadContext,
   userId: User['id']
 ) => {
-  const profile = await context.db.user.findUnique({
+  const user = await context.db.user.findUnique({
     where: { id: userId },
     select: {
       id: true,
@@ -15,7 +15,16 @@ export const getProfile = async (
       image: true,
     },
   })
-  return profile
+  const profile = await context.db.profile.findUnique({
+    where: { userId },
+    select: {
+      bio: true,
+    },
+  })
+  if (!user) {
+    throw new Error('User not found')
+  }
+  return { ...user, ...profile }
 }
 
 export type GetProfileResponse = Prisma.PromiseReturnType<typeof getProfile>
