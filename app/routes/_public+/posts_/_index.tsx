@@ -21,12 +21,11 @@ import { Button } from '~/components/ui/button'
 import { ScrollArea } from '~/components/ui/scroll-area'
 import { Textarea } from '~/components/ui/textarea'
 import { PostItem } from '~/features/posts/components/PostItem'
+import { UserForClient } from '~/routes/_auth+/_layout'
 import { getAuthenticator } from '~/services/auth/auth.server'
 import { createPost } from '~/services/post/createPost.server'
 import { deletePost } from '~/services/post/deletePost.server'
 import { getPosts } from '~/services/post/getPosts.server'
-
-import { UserForClient } from './_layout'
 
 export const schemaForCreatePost = z.object({
   content: z
@@ -103,7 +102,7 @@ export default function Index() {
   const postContentProps = getInputProps(content, { type: 'text' })
 
   return (
-    <div className="w-full max-w-xl mx-auto h-[650px] flex flex-col bg-background ">
+    <div className="w-full max-w-xl mx-auto  h-full flex flex-col bg-background">
       <ScrollArea className="flex-grow p-4">
         {posts.map((post) => (
           <PostItem key={post.id} post={post} user={user} />
