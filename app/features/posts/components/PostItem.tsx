@@ -8,7 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '~/components/ui/popover'
-import { UserForClient } from '~/routes/_public+/posts_/_layout'
+import { UserForClient } from '~/routes/_auth+/_layout'
 import { GetPostsResponse } from '~/services/post/getPosts.server'
 
 interface Props {
@@ -44,7 +44,7 @@ export const PostItem = ({ post, user }: Props) => {
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
-              <Form method="delete" action="/posts">
+              <Form method="delete" action="#">
                 <input type="hidden" name="id" value={post.id} />
                 <Button
                   variant="ghost"

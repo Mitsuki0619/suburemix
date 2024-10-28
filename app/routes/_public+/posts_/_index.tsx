@@ -123,6 +123,7 @@ export default function Index() {
         <Form
           method="post"
           {...getFormProps(form)}
+          action="#"
           className="flex w-full items-center space-x-2"
         >
           <div className="flex-grow">
