@@ -106,7 +106,7 @@ export default function Index() {
   if (!profile) return null
   return (
     <div className="max-w-2xl mx-auto p-4 space-y-8">
-      <Form method="post" {...getFormProps(form)}>
+      <Form method="post" {...getFormProps(form)} action="#">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Edit Profile</h1>
           <div className="relative inline-block">
@@ -114,13 +114,7 @@ export default function Index() {
               {profile.image ? (
                 <AvatarImage src={profile.image} alt={profile.name} />
               ) : (
-                <AvatarFallback>
-                  {profile.name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .toUpperCase()}
-                </AvatarFallback>
+                <AvatarFallback>{profile.name?.charAt(0)}</AvatarFallback>
               )}
             </Avatar>
             <Button
@@ -131,6 +125,7 @@ export default function Index() {
               <Camera className="h-4 w-4" />
               <span className="sr-only">Change profile picture</span>
             </Button>
+            <Input {...getInputProps(image, { type: 'hidden' })} />
             {image.errors?.map((error, index) => (
               <p className="text-sm text-destructive mt-1" key={index}>
                 {error}
