@@ -40,7 +40,7 @@ export const action = async ({
   context,
   params,
 }: ActionFunctionArgs) => {
-  const authenticator = getAuthenticator(context)
+  const { authenticator, sessionStorage } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
   const formData = await request.clone().formData()
   const submission = parseWithZod(formData, { schema: schemaForUpdateProfile })
@@ -63,14 +63,18 @@ export const action = async ({
   if (submission.status !== 'success') {
     return submission.reply()
   }
-  await updateProfile(context, {
+  const { bio: _, ...newUserData } = await updateProfile(context, {
     userId: params.userId,
     image: String(formData.get('image')),
     name: String(formData.get('name')),
     email: String(formData.get('email')),
     bio: String(formData.get('bio')),
   })
-  return json(submission.reply())
+  const session = await sessionStorage.getSession(request.headers.get('Cookie'))
+  session.set(authenticator.sessionKey, { ...user, ...newUserData })
+  const cookie = await sessionStorage.commitSession(session)
+
+  return json(submission.reply(), { headers: { 'Set-Cookie': cookie } })
 }
 
 export const loader = async ({ context, params }: LoaderFunctionArgs) => {

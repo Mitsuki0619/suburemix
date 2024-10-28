@@ -43,7 +43,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   if (submission.status !== 'success') {
     return json(submission.reply())
   }
-  const authenticator = getAuthenticator(context)
+  const { authenticator } = getAuthenticator(context)
   return await authenticator
     .authenticate('user-pass', request, {
       successRedirect: '/',
@@ -64,7 +64,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 }
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
-  const authenticator = getAuthenticator(context)
+  const { authenticator } = getAuthenticator(context)
   return await authenticator.isAuthenticated(request, {
     successRedirect: '/',
   })

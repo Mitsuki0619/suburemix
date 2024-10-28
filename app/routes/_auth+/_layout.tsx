@@ -11,7 +11,7 @@ export type UserForClient = Pick<
 > | null
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
-  const authenticator = getAuthenticator(context)
+  const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
   if (!user) {
     return null

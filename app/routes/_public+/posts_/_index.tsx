@@ -37,7 +37,7 @@ export const schemaForDeletePost = z.object({
 })
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const authenticator = getAuthenticator(context)
+  const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
   const formData = await request.clone().formData()
   switch (request.method) {
