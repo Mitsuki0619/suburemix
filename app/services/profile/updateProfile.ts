@@ -40,7 +40,13 @@ export const updateProfile = async (
         },
       })
 
-      return { ...updatedProfile, ...updatedUser }
+      return {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        image: updatedUser.image,
+        bio: updatedProfile.bio,
+      }
     }
   )
 

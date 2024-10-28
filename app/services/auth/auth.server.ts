@@ -1,14 +1,14 @@
-import { User, Prisma } from '@prisma/client/edge'
+import { User } from '@prisma/client/edge'
 import {
   AppLoadContext,
   createCookieSessionStorage,
+  SessionData,
+  SessionStorage,
 } from '@remix-run/cloudflare'
 import bcrypt from 'bcryptjs'
 import { Authenticator, AuthorizationError } from 'remix-auth'
 import { FormStrategy } from 'remix-auth-form'
 import { GoogleStrategy } from 'remix-auth-google'
-
-import { getPosts } from '~/services/post/getPosts.server'
 
 type UserForClient = Omit<
   User,
@@ -17,20 +17,22 @@ type UserForClient = Omit<
 
 let _authenticatedUser: Authenticator<UserForClient> | null = null
 
-export function getAuthenticator(
-  context: AppLoadContext
-): Authenticator<UserForClient> {
+export function getAuthenticator(context: AppLoadContext): {
+  authenticator: Authenticator<UserForClient>
+} & {
+  sessionStorage: SessionStorage<SessionData, SessionData>
+} {
+  const sessionStorage = createCookieSessionStorage({
+    cookie: {
+      name: '_session',
+      sameSite: 'lax',
+      path: '/',
+      httpOnly: true,
+      secrets: [context.cloudflare.env.SESSION_SECRET],
+      secure: true,
+    },
+  })
   if (_authenticatedUser === null) {
-    const sessionStorage = createCookieSessionStorage({
-      cookie: {
-        name: '_session',
-        sameSite: 'lax',
-        path: '/',
-        httpOnly: true,
-        secrets: [context.cloudflare.env.SESSION_SECRET],
-        secure: true,
-      },
-    })
     _authenticatedUser = new Authenticator<UserForClient>(sessionStorage)
 
     const formStrategy = new FormStrategy(async ({ form }) => {
@@ -97,5 +99,5 @@ export function getAuthenticator(
     )
     _authenticatedUser.use(googleStrategy)
   }
-  return _authenticatedUser
+  return { authenticator: _authenticatedUser, sessionStorage }
 }

@@ -60,14 +60,14 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
       })
     )
   }
-  const authenticator = getAuthenticator(context)
+  const { authenticator } = getAuthenticator(context)
   return await authenticator.authenticate('user-pass', request, {
     successRedirect: '/',
   })
 }
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
-  const authenticator = getAuthenticator(context)
+  const { authenticator } = getAuthenticator(context)
   await authenticator.isAuthenticated(request, {
     successRedirect: '/',
   })
