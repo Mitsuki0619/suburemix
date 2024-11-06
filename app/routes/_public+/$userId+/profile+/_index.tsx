@@ -7,6 +7,7 @@ import {
 } from '@remix-run/cloudflare'
 import {
   Form,
+  Link,
   useActionData,
   useLoaderData,
   useNavigation,
@@ -21,18 +22,18 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import { getAuthenticator } from '~/services/auth/auth.server'
-import { getProfile } from '~/services/profile/getProfile'
-import { updateProfile } from '~/services/profile/updateProfile'
+import { getProfile } from '~/services/profile/getProfile.server'
+import { updateProfile } from '~/services/profile/updateProfile.server'
 
 export const schemaForUpdateProfile = z.object({
-  image: z.string().optional(),
+  image: z.string().nullable(),
   name: z
     .string({ required_error: 'Name is required' })
     .max(255, 'Name must be less than 255 characters'),
   email: z
     .string({ required_error: 'Email is required' })
     .email('Invalid email'),
-  bio: z.string().max(1000, 'Bio must be less than 1000 characters').optional(),
+  bio: z.string().max(1000, 'Bio must be less than 1000 characters').nullable(),
 })
 
 export const action = async ({
@@ -63,12 +64,13 @@ export const action = async ({
   if (submission.status !== 'success') {
     return submission.reply()
   }
+  const { image, name, email, bio } = submission.value
   const { bio: _, ...newUserData } = await updateProfile(context, {
     userId: params.userId,
-    image: String(formData.get('image')),
-    name: String(formData.get('name')),
-    email: String(formData.get('email')),
-    bio: String(formData.get('bio')),
+    image,
+    name,
+    email,
+    bio,
   })
   const session = await sessionStorage.getSession(request.headers.get('Cookie'))
   session.set(authenticator.sessionKey, { ...user, ...newUserData })
@@ -164,8 +166,8 @@ export default function Index() {
               </p>
             ))}
           </div>
-          <Button variant="outline" className="w-full" type="button">
-            Change Password
+          <Button asChild variant="outline" className="w-full" type="button">
+            <Link to={`/${profile.id}/password_change`}>Change Password</Link>
           </Button>
           <Button
             className="w-full"
