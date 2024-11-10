@@ -85,8 +85,8 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
   const data = await serverAction<typeof action>()
   if (data.status === 'error') return data
-  toast({ title: 'Success', description: 'User created!' })
-  return null
+  toast({ title: 'Success', description: 'Password changed successfully' })
+  return data
 }
 
 export default function Index() {
@@ -106,8 +106,15 @@ export default function Index() {
     shouldRevalidate: 'onInput',
   })
 
+  const currentPasswordProps = getInputProps(currentPassword, {
+    type: 'password',
+  })
+  const newPasswordProps = getInputProps(newPassword, { type: 'password' })
+  const confirmNewPasswordProps = getInputProps(confirmNewPassword, {
+    type: 'password',
+  })
   return (
-    <div className="w-full flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="w-full flex items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Change Password</CardTitle>
@@ -131,9 +138,10 @@ export default function Index() {
                 Current Password
               </Label>
               <Input
-                {...getInputProps(currentPassword, { type: 'password' })}
+                {...currentPasswordProps}
                 className="mt-1"
                 autoComplete="current-password"
+                key={currentPasswordProps.key}
               />
               {currentPassword.errors?.map((error, index) => (
                 <p className="mt-1 text-sm text-red-600" key={index}>
@@ -149,7 +157,8 @@ export default function Index() {
                 New Password
               </Label>
               <Input
-                {...getInputProps(newPassword, { type: 'password' })}
+                {...newPasswordProps}
+                key={newPasswordProps.key}
                 autoComplete="new-password"
                 className="mt-1"
               />
@@ -171,7 +180,8 @@ export default function Index() {
                 Confirm New Password
               </Label>
               <Input
-                {...getInputProps(confirmNewPassword, { type: 'password' })}
+                {...confirmNewPasswordProps}
+                key={confirmNewPasswordProps.key}
                 autoComplete="new-password"
                 className="mt-1"
               />

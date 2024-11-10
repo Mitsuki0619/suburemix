@@ -61,15 +61,18 @@ export const Header = ({ user }: HeaderProps) => {
                     </div>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Link to={`/${user.id}/profile`} className="w-full flex">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to={`/${user.id}/profile`}
+                      className="flex cursor-pointer"
+                    >
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Form method="post" action="/signout" className="w-full">
+                  <DropdownMenuItem asChild>
+                    <Form method="post" action="/signout">
                       <button type="submit" className="w-full text-start">
                         Sign Out
                       </button>

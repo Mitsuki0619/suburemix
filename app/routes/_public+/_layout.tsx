@@ -2,6 +2,7 @@ import { json, LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { Outlet, useLoaderData } from '@remix-run/react'
 
 import { Layout } from '~/components/layout'
+import { Toaster } from '~/components/ui/toaster'
 import { getAuthenticator } from '~/services/auth/auth.server'
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
@@ -19,6 +20,7 @@ export default function App() {
   return (
     <Layout user={user}>
       <Outlet context={user} />
+      <Toaster />
     </Layout>
   )
 }

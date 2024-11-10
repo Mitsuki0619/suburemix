@@ -18,6 +18,7 @@ import { zx } from 'zodix'
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Button } from '~/components/ui/button'
+import { Card, CardTitle, CardContent, CardHeader } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
@@ -107,78 +108,93 @@ export default function Index() {
   })
   if (!profile) return null
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-8">
-      <Form method="post" {...getFormProps(form)} action="#">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Edit Profile</h1>
-          <div className="relative inline-block">
-            <Avatar className="w-32 h-32">
-              {profile.image ? (
-                <AvatarImage src={profile.image} alt={profile.name} />
-              ) : (
-                <AvatarFallback>{profile.name?.charAt(0)}</AvatarFallback>
-              )}
-            </Avatar>
-            <Button
-              size="icon"
-              className="absolute bottom-0 right-0 rounded-full"
-              type="button"
-            >
-              <Camera className="h-4 w-4" />
-              <span className="sr-only">Change profile picture</span>
-            </Button>
-            <Input {...getInputProps(image, { type: 'hidden' })} />
-            {image.errors?.map((error, index) => (
-              <p className="text-sm text-destructive mt-1" key={index}>
-                {error}
-              </p>
-            ))}
-          </div>
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input {...getInputProps(name, { type: 'text' })} />
-            {name.errors?.map((error, index) => (
-              <p className="text-sm text-destructive mt-1" key={index}>
-                {error}
-              </p>
-            ))}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input {...getInputProps(email, { type: 'email' })} />
-            {email.errors?.map((error, index) => (
-              <p className="text-sm text-destructive mt-1" key={index}>
-                {error}
-              </p>
-            ))}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea
-              className="min-h-[100px]"
-              {...getInputProps(bio, { type: 'text' })}
-            />
-            {bio.errors?.map((error, index) => (
-              <p className="text-sm text-destructive mt-1" key={index}>
-                {error}
-              </p>
-            ))}
-          </div>
-          <Button asChild variant="outline" className="w-full" type="button">
-            <Link to={`/${profile.id}/password_change`}>Change Password</Link>
-          </Button>
-          <Button
-            className="w-full"
-            type="submit"
-            disabled={navigation.state === 'submitting'}
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Save Changes
-          </Button>
-        </div>
-      </Form>
+    <div className="w-full flex items-center justify-center">
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            Edit Profile
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form method="post" {...getFormProps(form)} action="#">
+            <div className="text-center">
+              <div className="relative inline-block">
+                <Avatar className="w-32 h-32">
+                  {profile.image ? (
+                    <AvatarImage src={profile.image} alt={profile.name} />
+                  ) : (
+                    <AvatarFallback>{profile.name?.charAt(0)}</AvatarFallback>
+                  )}
+                </Avatar>
+                <Button
+                  size="icon"
+                  className="absolute bottom-0 right-0 rounded-full"
+                  type="button"
+                >
+                  <Camera className="h-4 w-4" />
+                  <span className="sr-only">Change profile picture</span>
+                </Button>
+                <Input {...getInputProps(image, { type: 'hidden' })} />
+                {image.errors?.map((error, index) => (
+                  <p className="text-sm text-destructive mt-1" key={index}>
+                    {error}
+                  </p>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input {...getInputProps(name, { type: 'text' })} />
+                {name.errors?.map((error, index) => (
+                  <p className="text-sm text-destructive mt-1" key={index}>
+                    {error}
+                  </p>
+                ))}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input {...getInputProps(email, { type: 'email' })} />
+                {email.errors?.map((error, index) => (
+                  <p className="text-sm text-destructive mt-1" key={index}>
+                    {error}
+                  </p>
+                ))}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  className="min-h-[100px]"
+                  {...getInputProps(bio, { type: 'text' })}
+                />
+                {bio.errors?.map((error, index) => (
+                  <p className="text-sm text-destructive mt-1" key={index}>
+                    {error}
+                  </p>
+                ))}
+              </div>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full"
+                type="button"
+              >
+                <Link to={`/${profile.id}/password_change`}>
+                  Change Password
+                </Link>
+              </Button>
+              <Button
+                className="w-full"
+                type="submit"
+                disabled={navigation.state === 'submitting'}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </Button>
+            </div>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   )
 }

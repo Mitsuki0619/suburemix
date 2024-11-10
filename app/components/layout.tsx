@@ -12,7 +12,7 @@ export interface LayoutProps {
 
 export const Layout = ({ children, user }: LayoutProps) => {
   return (
-    <div className={cn('h-screen flex flex-col bg-background text-foreground')}>
+    <div className={cn('h-screen flex flex-col bg-gray-100 text-foreground')}>
       <Header user={user} />
       <div className="flex-1 flex overflow-hidden">{children}</div>
     </div>
