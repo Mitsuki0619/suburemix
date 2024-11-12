@@ -7,14 +7,14 @@ import {
   LoaderFunctionArgs,
 } from '@remix-run/cloudflare'
 import {
-  Form,
   useActionData,
+  useFetcher,
   useLoaderData,
-  useNavigation,
   useOutletContext,
   useRevalidator,
 } from '@remix-run/react'
 import { Send } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 
 import { Button } from '~/components/ui/button'
@@ -57,7 +57,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
         content: String(formData.get('content')),
         userId: user.id,
       })
-      return json(submission.reply({ resetForm: true }))
+      return json(submission.reply())
     }
     case 'DELETE': {
       const submission = parseWithZod(formData, { schema: schemaForDeletePost })
@@ -89,8 +89,9 @@ export default function Index() {
   const lastResult = useActionData<typeof action>()
   const posts = useLoaderData<typeof loader>()
   const user = useOutletContext<UserForClient>()
+  const $formRef = useRef<HTMLFormElement>(null)
+  const fetcher = useFetcher()
   const revalidator = useRevalidator()
-  const navigation = useNavigation()
   const [form, { content }] = useForm({
     lastResult,
     onValidate({ formData }) {
@@ -100,6 +101,12 @@ export default function Index() {
     shouldRevalidate: 'onInput',
   })
   const postContentProps = getInputProps(content, { type: 'text' })
+
+  useEffect(() => {
+    if (fetcher.state === 'idle') {
+      $formRef.current?.reset()
+    }
+  }, [fetcher.state])
 
   return (
     <div className="w-full max-w-xl mx-auto  h-full flex flex-col bg-background">
@@ -120,17 +127,17 @@ export default function Index() {
         </Button>
       </div>
       <div className="p-4">
-        <Form
+        <fetcher.Form
           method="post"
           {...getFormProps(form)}
-          action="#"
           className="flex w-full items-center space-x-2"
+          ref={$formRef}
         >
           <div className="flex-grow">
             <Textarea
               {...postContentProps}
               key={postContentProps.key}
-              disabled={navigation.state === 'submitting' || !user}
+              disabled={fetcher.state === 'submitting' || !user}
               className="min-h-[80px]"
             />
             {content.errors?.map((error, index) => (
@@ -142,12 +149,12 @@ export default function Index() {
           <Button
             type="submit"
             size="icon"
-            disabled={!user || navigation.state === 'submitting'}
+            disabled={!user || fetcher.state === 'submitting'}
           >
             <Send className="h-4 w-4" />
             <span className="sr-only">Send</span>
           </Button>
-        </Form>
+        </fetcher.Form>
       </div>
     </div>
   )

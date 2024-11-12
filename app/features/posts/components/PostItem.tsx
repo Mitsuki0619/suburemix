@@ -1,4 +1,4 @@
-import { Form, useNavigation } from '@remix-run/react'
+import { useFetcher } from '@remix-run/react'
 import { Trash2 } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
@@ -18,7 +18,7 @@ interface Props {
 
 export const PostItem = ({ post, user }: Props) => {
   const isCurrentUser = !!user?.id && user.id === post.author.id
-  const navigation = useNavigation()
+  const fetcher = useFetcher()
   return (
     <div
       className={`flex items-start space-x-2 mb-4 ${isCurrentUser ? 'flex-row-reverse space-x-reverse' : ''}`}
@@ -44,18 +44,18 @@ export const PostItem = ({ post, user }: Props) => {
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
-              <Form method="delete" action="#">
+              <fetcher.Form method="delete">
                 <input type="hidden" name="id" value={post.id} />
                 <Button
                   variant="ghost"
                   className="flex items-center text-destructive"
                   type="submit"
-                  disabled={navigation.state === 'submitting'}
+                  disabled={fetcher.state === 'submitting'}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Delete
                 </Button>
-              </Form>
+              </fetcher.Form>
             </PopoverContent>
           </Popover>
         ) : (
