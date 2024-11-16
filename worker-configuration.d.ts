@@ -7,4 +7,7 @@ interface Env {
   GOOGLE_CALLBACK_BASE_URL: string
   GOOGLE_CLIENT_ID: string
   GOOGLE_CLIENT_SECRET: string
+  SUPABASE_URL: string
+  SUPABASE_ANON_KEY: string
+  SUPABASE_STORAGE_BUCKET: string
 }
