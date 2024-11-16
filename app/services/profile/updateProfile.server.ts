@@ -5,8 +5,8 @@ export type UpdateProfileRequest = {
   userId: User['id']
   name: User['name']
   email: User['email']
-  image: User['image']
-  bio: Profile['bio']
+  image?: User['image']
+  bio?: Profile['bio']
 }
 
 export const updateProfile = async (
