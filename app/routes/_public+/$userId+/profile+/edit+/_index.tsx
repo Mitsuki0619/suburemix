@@ -45,13 +45,25 @@ export const schemaForUpdateProfile = z.object({
   newImageFile: z
     .string()
     .transform((b64) => {
+      // ファイルの拡張子(png)
+      const fileExtension = b64
+        .toString()
+        .slice(b64.indexOf('/') + 1, b64.indexOf(';'))
+
+      // ContentType(image/png)
+      const contentType = b64
+        .toString()
+        .slice(b64.indexOf(':') + 1, b64.indexOf(';'))
+
       const bin = atob(b64?.replace(/^.*,/, ''))
       // Convert to binary data
       const buffer = new Uint8Array(bin.length)
       for (let i = 0; i < bin.length; i++) {
         buffer[i] = bin.charCodeAt(i)
       }
-      const file = new File([buffer.buffer], 'profileImage')
+      const file = new File([buffer.buffer], `profileImage.${fileExtension}`, {
+        type: contentType,
+      })
       return file
     })
     .refine((file) => sizeInMB(file.size) <= MAX_IMAGE_SIZE, {
@@ -211,8 +223,6 @@ export default function Index() {
                     reader.readAsDataURL(file)
                     reader.onload = (e) => {
                       if (typeof e.target?.result !== 'string') return
-                      console.log(e.target.result)
-
                       imageInputControl.change(e.target.result)
 
                       setPreviewImageUrl(e.target.result)
