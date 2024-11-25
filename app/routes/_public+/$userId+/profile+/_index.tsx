@@ -120,7 +120,7 @@ export default function Index() {
                   <Card>
                     <CardContent className="pt-6">
                       <p className="text-center text-muted-foreground">
-                        No blog posts yet. Stay tuned for future updates!
+                        No blogs yet. Stay tuned for future updates!
                       </p>
                     </CardContent>
                   </Card>
