@@ -1,5 +1,3 @@
-import { useNavigate } from '@remix-run/react'
-import { ChevronLeft, Link } from 'lucide-react'
 import { ReactNode } from 'react'
 
 import { cn } from '~/lib/utils'
