@@ -9,6 +9,7 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
+  redirect,
 } from '@remix-run/cloudflare'
 import {
   Form,
@@ -146,7 +147,16 @@ export const action = async ({
   return json(submission.reply(), { headers: { 'Set-Cookie': cookie } })
 }
 
-export const loader = async ({ context, params }: LoaderFunctionArgs) => {
+export const loader = async ({
+  context,
+  params,
+  request,
+}: LoaderFunctionArgs) => {
+  const { authenticator } = getAuthenticator(context)
+  const user = await authenticator.isAuthenticated(request)
+  if (!user || user.id !== params.userId) {
+    return redirect(`/${params.userId}/profile`)
+  }
   const { userId } = zx.parseParams(params, {
     userId: z.string(),
   })
