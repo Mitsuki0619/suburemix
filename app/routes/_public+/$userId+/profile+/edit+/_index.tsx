@@ -29,7 +29,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
 import { getAuthenticator } from '~/services/auth/auth.server'
-import { getProfile } from '~/services/profile/getProfile.server'
+import { getPrivateProfile } from '~/services/profile/getPrivateProfile.server'
 import { updateProfile } from '~/services/profile/updateProfile.server'
 import { uploadProfileImage } from '~/services/profile/uploadProfileImage.server'
 
@@ -149,7 +149,7 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   const { userId } = zx.parseParams(params, {
     userId: z.string(),
   })
-  const profile = await getProfile(context, userId)
+  const profile = await getPrivateProfile(context, userId)
   return json(profile)
 }
 

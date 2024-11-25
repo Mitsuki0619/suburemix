@@ -1,7 +1,7 @@
 import { Prisma, User } from '@prisma/client/edge'
 import { AppLoadContext } from '@remix-run/cloudflare'
 
-export const getProfile = async (
+export const getPrivateProfile = async (
   context: AppLoadContext,
   userId: User['id']
 ) => {
@@ -27,4 +27,6 @@ export const getProfile = async (
   return { ...user, ...profile }
 }
 
-export type GetProfileResponse = Prisma.PromiseReturnType<typeof getProfile>
+export type GetProfileResponse = Prisma.PromiseReturnType<
+  typeof getPrivateProfile
+>
