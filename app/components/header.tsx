@@ -29,10 +29,10 @@ export const Header = ({ user }: HeaderProps) => {
             </h1>
           </Link>
           <div className="flex items-center space-x-4">
-            <nav className="hidden md:flex space-x-4">
-              <Link to="/blog" className="text-foreground hover:text-primary">
-                Blog
-              </Link>
+            <nav className="hidden md:flex space-x-4 items-center">
+              <Button variant="default" asChild>
+                <Link to="/blogs/create">Create Blog</Link>
+              </Button>
               <Link to="/posts" className="text-foreground hover:text-primary">
                 Posts
               </Link>

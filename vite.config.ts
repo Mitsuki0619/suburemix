@@ -13,6 +13,7 @@ export default defineConfig({
     resolve: {
       externalConditions: ['workerd', 'worker'],
     },
+    external: ['@uiw/react-md-editor'],
   },
   plugins: [
     remix({
