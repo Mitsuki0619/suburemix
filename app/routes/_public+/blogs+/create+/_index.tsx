@@ -1,4 +1,4 @@
-import { getInputProps, getSelectProps, useForm } from '@conform-to/react'
+import { useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import {
   ActionFunctionArgs,
@@ -18,6 +18,7 @@ const postBlogSchema = z.object({
   title: z.string({ required_error: 'Title is required' }),
   categories: z.array(z.string()),
   content: z.string({ required_error: 'Content is required' }),
+  published: z.boolean(),
 })
 
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
@@ -45,10 +46,13 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
   if (submission.status !== 'success') {
     return submission.reply()
   }
-  createBlog(context, {
+  console.log('aaa')
+
+  await createBlog(context, {
     title: String(formData.get('title')),
     categories: formData.getAll('categories').map(String),
     content: String(formData.get('content')),
+    published: Boolean(formData.get('published')),
     userId: user.id,
   })
   return submission.reply()
@@ -57,8 +61,14 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
 export default function Index() {
   const { categoriesOptions } = useLoaderData<typeof loader>()
   const lastResult = useActionData<typeof action>()
-  const [form, { title, categories, content }] = useForm({
+  const [form, fields] = useForm({
     lastResult,
+    defaultValue: {
+      title: '',
+      content: '',
+      categories: [],
+      published: false,
+    },
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: postBlogSchema })
     },
@@ -68,10 +78,12 @@ export default function Index() {
   return (
     <>
       <BlogEditor
+        title={fields.title}
+        content={fields.content}
+        categories={fields.categories}
+        published={fields.published}
         categoriesOptions={categoriesOptions}
-        titleInputProps={getInputProps(title, { type: 'text' })}
-        categoriesSelectProps={}
-        contentInputProps={getInputProps(content, { type: 'text' })}
+        form={form}
       />
     </>
   )

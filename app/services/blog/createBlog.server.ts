@@ -7,10 +7,11 @@ export const createBlog = async (
     title: Blog['title']
     categories: string[]
     content: Blog['content']
+    published: Blog['published']
     userId: User['id']
   }
 ) => {
-  const { title, categories, content, userId } = request
+  const { title, categories, content, published, userId } = request
 
   if (!title || !content) {
     throw new Error('Invalid Request')
@@ -20,6 +21,7 @@ export const createBlog = async (
       title,
       content,
       authorId: userId,
+      published,
       categories: {
         connect: categories.map((id) => ({ id: Number(id) })),
       },
