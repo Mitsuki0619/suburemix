@@ -94,8 +94,12 @@ export const BlogEditor = ({
     })
   }
 
+  const formProps = getFormProps(form)
+  const titleProps = getInputProps(title, { type: 'text' })
+  const contentProps = getInputProps(content, { type: 'text' })
+
   return (
-    <Form {...getFormProps(form)} method="post">
+    <Form {...formProps} method="post">
       <div className="container mx-auto p-4 max-w-7xl">
         <h1 className="text-4xl font-bold mb-8">Create/Edit Blog Post</h1>
         <Card className="mb-8">
@@ -107,7 +111,9 @@ export const BlogEditor = ({
                 </Label>
                 <Input
                   placeholder="Enter your blog title"
-                  {...getInputProps(title, { type: 'text' })}
+                  {...titleProps}
+                  key={titleProps.key}
+                  defaultValue=""
                   onChange={(e) =>
                     setInteractiveInputValues((prev) => ({
                       ...prev,
@@ -166,6 +172,7 @@ export const BlogEditor = ({
                   <div className="flex items-center space-x-2">
                     <Switch
                       defaultChecked={published.initialValue === 'on'}
+                      name="published"
                       onCheckedChange={(checked) => {
                         form.update({
                           name: published.name,
@@ -251,7 +258,8 @@ export const BlogEditor = ({
                     placeholder="Write your blog content here (using Markdown)"
                     className="flex-grow text-lg font-mono resize-none"
                     ref={contentInputRef}
-                    {...getInputProps(content, { type: 'text' })}
+                    {...contentProps}
+                    key={contentProps.key}
                     value={interactiveInputValues.content}
                     onChange={(e) =>
                       setInteractiveInputValues((prev) => ({

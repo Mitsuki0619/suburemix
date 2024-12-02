@@ -6,10 +6,15 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from '@remix-run/cloudflare'
-import { useActionData, useLoaderData } from '@remix-run/react'
+import {
+  ClientActionFunctionArgs,
+  useActionData,
+  useLoaderData,
+} from '@remix-run/react'
 import { z } from 'zod'
 
 import { BlogEditor } from '~/features/blogs/BlogEditor'
+import { toast } from '~/hooks/use-toast'
 import { getAuthenticator } from '~/services/auth/auth.server'
 import { createBlog } from '~/services/blog/createBlog.server'
 import { getCategories } from '~/services/blog/getCategories.server'
@@ -46,8 +51,6 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
   if (submission.status !== 'success') {
     return submission.reply()
   }
-  console.log('aaa')
-
   await createBlog(context, {
     title: String(formData.get('title')),
     categories: formData.getAll('categories').map(String),
@@ -55,7 +58,14 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
     published: Boolean(formData.get('published')),
     userId: user.id,
   })
-  return submission.reply()
+  return submission.reply({ resetForm: true })
+}
+
+export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
+  const data = await serverAction<typeof action>()
+  if (data.status === 'error') return data
+  toast({ title: 'Success', description: 'Blog created successfully' })
+  return data
 }
 
 export default function Index() {
@@ -63,12 +73,6 @@ export default function Index() {
   const lastResult = useActionData<typeof action>()
   const [form, fields] = useForm({
     lastResult,
-    defaultValue: {
-      title: '',
-      content: '',
-      categories: [],
-      published: false,
-    },
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: postBlogSchema })
     },
@@ -84,6 +88,7 @@ export default function Index() {
         published={fields.published}
         categoriesOptions={categoriesOptions}
         form={form}
+        key={form.key}
       />
     </>
   )
