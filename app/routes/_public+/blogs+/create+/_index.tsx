@@ -23,7 +23,7 @@ const postBlogSchema = z.object({
   title: z.string({ required_error: 'Title is required' }),
   categories: z.array(z.string()),
   content: z.string({ required_error: 'Content is required' }),
-  published: z.boolean(),
+  published: z.boolean().default(false),
 })
 
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
@@ -75,6 +75,12 @@ export default function Index() {
     lastResult,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: postBlogSchema })
+    },
+    defaultValue: {
+      title: '',
+      content: '',
+      categories: [],
+      published: false,
     },
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',

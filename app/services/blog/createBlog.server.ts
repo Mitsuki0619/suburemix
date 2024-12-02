@@ -22,6 +22,7 @@ export const createBlog = async (
       content,
       authorId: userId,
       published,
+      publishedAt: published ? new Date() : null,
       categories: {
         connect: categories.map((id) => ({ id: Number(id) })),
       },
