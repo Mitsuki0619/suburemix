@@ -109,8 +109,8 @@ export default function Index() {
   }, [fetcher.state])
 
   return (
-    <div className="w-full max-w-xl mx-auto  h-full flex flex-col bg-background">
-      <ScrollArea className="flex-grow p-4">
+    <div className="w-full max-w-xl mx-auto flex flex-col bg-background">
+      <ScrollArea className="flex-grow p-4 max-h-[70vh]">
         {posts.map((post) => (
           <PostItem key={post.id} post={post} user={user} />
         ))}
@@ -140,11 +140,13 @@ export default function Index() {
               disabled={fetcher.state === 'submitting' || !user}
               className="min-h-[80px]"
             />
-            {content.errors?.map((error, index) => (
-              <p className="text-sm text-destructive mt-1" key={index}>
-                {error}
-              </p>
-            ))}
+            <div className="max-h-10 h-10 mt-2 overflow-auto">
+              {content.errors?.map((error, index) => (
+                <p className="text-sm text-destructive mt-1" key={index}>
+                  {error}
+                </p>
+              ))}
+            </div>
           </div>
           <Button
             type="submit"
