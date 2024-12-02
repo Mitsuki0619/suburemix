@@ -4,7 +4,7 @@ import {
   getFormProps,
   getInputProps,
 } from '@conform-to/react'
-import { Form } from '@remix-run/react'
+import { Form, useNavigation } from '@remix-run/react'
 import {
   Bold,
   Image,
@@ -32,7 +32,7 @@ interface Props {
     title: string
     content: string
     categories: string[]
-    published: boolean
+    published?: boolean
   }>
   title: FieldMetadata<string>
   content: FieldMetadata<string>
@@ -53,14 +53,13 @@ export const BlogEditor = ({
     title: string | undefined
     content: string | undefined
     categories: string | (string | undefined)[]
-    published: string | undefined
   }>({
     title: title.value,
     content: content.value,
     categories: categories.value ?? [],
-    published: published.value,
   })
 
+  const navigation = useNavigation()
   const contentInputRef = useRef<HTMLTextAreaElement>(null)
   const insertMarkdown = (prefix: string, suffix: string = '') => {
     const textarea = contentInputRef.current
@@ -99,9 +98,9 @@ export const BlogEditor = ({
   const contentProps = getInputProps(content, { type: 'text' })
 
   return (
-    <Form {...formProps} method="post">
-      <div className="container mx-auto p-4 max-w-7xl">
-        <h1 className="text-4xl font-bold mb-8">Create/Edit Blog Post</h1>
+    <div className="container mx-auto p-4 max-w-5xl">
+      <Form {...formProps} method="post">
+        <h1 className="text-xl font-bold mb-8">Create/Edit Blog Post</h1>
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -173,12 +172,6 @@ export const BlogEditor = ({
                     <Switch
                       defaultChecked={published.initialValue === 'on'}
                       name="published"
-                      onCheckedChange={(checked) => {
-                        form.update({
-                          name: published.name,
-                          value: checked,
-                        })
-                      }}
                     />
                   </div>
                 </div>
@@ -192,17 +185,17 @@ export const BlogEditor = ({
           </CardContent>
         </Card>
 
-        <Card className="lg:h-[800px] flex flex-col">
+        <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="text-2xl">Content</CardTitle>
           </CardHeader>
-          <CardContent className="flex-grow overflow-auto">
+          <CardContent>
             <Tabs defaultValue="editor" className="h-full flex flex-col">
               <TabsList className="mb-4">
                 <TabsTrigger value="editor">Editor</TabsTrigger>
                 <TabsTrigger value="preview">Preview</TabsTrigger>
               </TabsList>
-              <TabsContent value="editor" className="flex-grow">
+              <TabsContent value="editor">
                 <div className="space-y-4 flex-grow flex flex-col">
                   <div className="flex space-x-2 mb-4">
                     <Button
@@ -256,7 +249,7 @@ export const BlogEditor = ({
                   </div>
                   <Textarea
                     placeholder="Write your blog content here (using Markdown)"
-                    className="flex-grow text-lg font-mono resize-none"
+                    className="h-[800px] text-lg font-mono resize-none"
                     ref={contentInputRef}
                     {...contentProps}
                     key={contentProps.key}
@@ -274,8 +267,18 @@ export const BlogEditor = ({
                     </p>
                   ))}
                 </div>
+                <div className="mt-8 flex justify-end">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="text-lg"
+                    disabled={navigation.state === 'submitting'}
+                  >
+                    <Save className="mr-2 h-5 w-5" /> Save Post
+                  </Button>
+                </div>
               </TabsContent>
-              <TabsContent value="preview" className="flex-grow overflow-auto">
+              <TabsContent value="preview">
                 <h1>{title.value}</h1>
                 <div className="prose max-w-none dark:prose-invert">
                   <ReactMarkdown>
@@ -286,13 +289,7 @@ export const BlogEditor = ({
             </Tabs>
           </CardContent>
         </Card>
-
-        <div className="mt-8 flex justify-end">
-          <Button type="submit" size="lg" className="text-lg">
-            <Save className="mr-2 h-5 w-5" /> Save Post
-          </Button>
-        </div>
-      </div>
-    </Form>
+      </Form>
+    </div>
   )
 }
