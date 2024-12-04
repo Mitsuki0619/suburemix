@@ -1,6 +1,7 @@
+import { PopoverClose } from '@radix-ui/react-popover'
 import { json, LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { Link, useLoaderData } from '@remix-run/react'
-import { Clock, Edit } from 'lucide-react'
+import { Clock, Edit, Pencil, Trash2 } from 'lucide-react'
 import { z } from 'zod'
 import { zx } from 'zodix'
 
@@ -8,6 +9,11 @@ import { BackButtonLayout } from '~/components/back-button-layout'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '~/components/ui/popover'
 import { getAuthenticator } from '~/services/auth/auth.server'
 import { getPublicProfile } from '~/services/profile/getPublicProfile.server'
 
@@ -103,9 +109,56 @@ export default function Index() {
                   blogs.map((blog) => (
                     <Card key={blog.id}>
                       <CardContent className="pt-6">
-                        <h3 className="text-xl font-semibold mb-2">
-                          {blog.title}
-                        </h3>
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-xl font-semibold">
+                            {blog.title}
+                          </h3>
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-muted-foreground hover:text-foreground"
+                              asChild
+                            >
+                              <Link to={`/blogs/${blog.id}/edit`}>
+                                <Pencil className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-muted-foreground hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-4">
+                                <h4 className="font-semibold mb-2">
+                                  Delete this post?
+                                </h4>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                  This action cannot be undone.
+                                </p>
+                                <div className="flex justify-end space-x-2">
+                                  <PopoverClose asChild>
+                                    <Button variant="outline" size="sm">
+                                      Cancel
+                                    </Button>
+                                  </PopoverClose>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => {}}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        </div>
                         <p className="text-muted-foreground mb-2">
                           {blog.content.slice(0, 100)}
                         </p>

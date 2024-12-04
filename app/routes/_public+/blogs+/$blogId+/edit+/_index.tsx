@@ -12,21 +12,27 @@ import {
   useLoaderData,
 } from '@remix-run/react'
 import { z } from 'zod'
+import { zx } from 'zodix'
 
 import { BlogEditor } from '~/features/blogs/BlogEditor'
 import { toast } from '~/hooks/use-toast'
 import { getAuthenticator } from '~/services/auth/auth.server'
-import { createBlog } from '~/services/blog/createBlog.server'
+import { getBlog } from '~/services/blog/getBlog.server'
 import { getCategories } from '~/services/blog/getCategories.server'
+import { updateBlog } from '~/services/blog/updateBlog.server'
 
-const postBlogSchema = z.object({
+const patchBlogSchema = z.object({
   title: z.string({ required_error: 'Title is required' }),
   categories: z.array(z.string()),
   content: z.string({ required_error: 'Content is required' }),
   published: z.boolean().default(false),
 })
 
-export const loader = async ({ context, request }: LoaderFunctionArgs) => {
+export const loader = async ({
+  context,
+  request,
+  params,
+}: LoaderFunctionArgs) => {
   const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
   if (!user) {
@@ -37,28 +43,40 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
     value: category.id.toString(),
     label: category.name,
   }))
-  return json({ categoriesOptions })
+  const { blogId } = zx.parseParams(params, {
+    blogId: z.preprocess((v) => Number(v), z.number()),
+  })
+  const blog = await getBlog(context, blogId, user.id)
+  return json({ categoriesOptions, blog })
 }
 
-export const action = async ({ context, request }: ActionFunctionArgs) => {
+export const action = async ({
+  context,
+  request,
+  params,
+}: ActionFunctionArgs) => {
   const formData = await request.formData()
-  const submission = parseWithZod(formData, { schema: postBlogSchema })
+  const submission = parseWithZod(formData, { schema: patchBlogSchema })
   const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
+  const { blogId } = zx.parseParams(params, {
+    blogId: z.preprocess((v) => Number(v), z.number()),
+  })
   if (!user) {
     return submission.reply()
   }
   if (submission.status !== 'success') {
     return submission.reply()
   }
-  await createBlog(context, {
+  await updateBlog(context, {
+    id: blogId,
     title: String(formData.get('title')),
     categories: formData.getAll('categories').map(Number),
     content: String(formData.get('content')),
     published: Boolean(formData.get('published')),
     userId: user.id,
   })
-  return submission.reply({ resetForm: true })
+  return submission.reply()
 }
 
 export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
@@ -69,18 +87,19 @@ export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
 }
 
 export default function Index() {
-  const { categoriesOptions } = useLoaderData<typeof loader>()
+  const { categoriesOptions, blog } = useLoaderData<typeof loader>()
   const lastResult = useActionData<typeof action>()
+
   const [form, fields] = useForm({
     lastResult,
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: postBlogSchema })
+      return parseWithZod(formData, { schema: patchBlogSchema })
     },
     defaultValue: {
-      title: '',
-      content: '',
-      categories: [],
-      published: false,
+      title: blog.title,
+      content: blog.content,
+      categories: blog.categories.map((category) => category.id.toString()),
+      published: blog.published,
     },
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',
@@ -88,7 +107,7 @@ export default function Index() {
   return (
     <>
       <BlogEditor
-        type="create"
+        type="edit"
         title={fields.title}
         content={fields.content}
         categories={fields.categories}

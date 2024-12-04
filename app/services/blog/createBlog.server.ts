@@ -5,17 +5,13 @@ export const createBlog = async (
   context: AppLoadContext,
   request: {
     title: Blog['title']
-    categories: string[]
+    categories: number[]
     content: Blog['content']
     published: Blog['published']
     userId: User['id']
   }
 ) => {
   const { title, categories, content, published, userId } = request
-
-  if (!title || !content) {
-    throw new Error('Invalid Request')
-  }
   const newBlog = await context.db.blog.create({
     data: {
       title,
