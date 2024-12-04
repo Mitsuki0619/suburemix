@@ -71,7 +71,7 @@ export const schemaForUpdateProfile = z.object({
     .refine((file) => sizeInMB(file.size) <= MAX_IMAGE_SIZE, {
       message: 'File size must be at most 5MB',
     })
-    .refine((file) => !IMAGE_TYPES.includes(file.type), {
+    .refine((file) => IMAGE_TYPES.includes(file.type), {
       message: 'Only .jpg or .png files are allowed.',
     })
     .optional(),

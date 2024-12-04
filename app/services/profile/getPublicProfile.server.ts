@@ -6,6 +6,7 @@ export const getPublicProfile = async (
   userId: User['id'],
   myUserId?: User['id']
 ) => {
+  const isAuthUser = myUserId === userId  
   const user = await context.db.user.findUnique({
     where: { id: userId },
     select: {
@@ -15,7 +16,7 @@ export const getPublicProfile = async (
       image: true,
       blogs: {
         where: {
-          published: myUserId !== userId,
+          published: isAuthUser ? undefined : true,
         },
       },
     },
