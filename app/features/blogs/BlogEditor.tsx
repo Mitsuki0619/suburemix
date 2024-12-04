@@ -3,6 +3,7 @@ import {
   FormMetadata,
   getFormProps,
   getInputProps,
+  useInputControl,
 } from '@conform-to/react'
 import { Form, useNavigation } from '@remix-run/react'
 import {
@@ -28,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { Textarea } from '~/components/ui/textarea'
 
 interface Props {
+  type: 'create' | 'edit'
   form: FormMetadata<{
     title: string
     content: string
@@ -42,6 +44,7 @@ interface Props {
 }
 
 export const BlogEditor = ({
+  type,
   title,
   form,
   categories,
@@ -61,6 +64,7 @@ export const BlogEditor = ({
 
   const navigation = useNavigation()
   const contentInputRef = useRef<HTMLTextAreaElement>(null)
+  const categoriesInputControl = useInputControl(categories)
   const insertMarkdown = (prefix: string, suffix: string = '') => {
     const textarea = contentInputRef.current
     if (!textarea) return
@@ -80,17 +84,16 @@ export const BlogEditor = ({
   }
   const handleCheckCategory = (category: string) => {
     if (!Array.isArray(interactiveInputValues.categories)) return
-    const newValue = interactiveInputValues.categories.includes(category)
-      ? interactiveInputValues.categories.filter((c) => c !== category)
-      : [...interactiveInputValues.categories, category]
+    const newValue = (
+      interactiveInputValues.categories.includes(category)
+        ? interactiveInputValues.categories.filter((c) => c !== category)
+        : [...interactiveInputValues.categories, category]
+    ).filter((c) => c != null)
     setInteractiveInputValues((prev) => ({
       ...prev,
       categories: newValue,
     }))
-    form.update({
-      name: categories.name,
-      value: newValue,
-    })
+    categoriesInputControl.change(newValue)
   }
 
   const formProps = getFormProps(form)
@@ -100,7 +103,7 @@ export const BlogEditor = ({
   return (
     <div className="container mx-auto p-4 max-w-5xl">
       <Form {...formProps} method="post">
-        <h1 className="text-xl font-bold mb-8">Create/Edit Blog Post</h1>
+        <h1 className="text-xl font-bold mb-8">{type.toUpperCase()} Blog</h1>
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -112,7 +115,6 @@ export const BlogEditor = ({
                   placeholder="Enter your blog title"
                   {...titleProps}
                   key={titleProps.key}
-                  defaultValue=""
                   onChange={(e) =>
                     setInteractiveInputValues((prev) => ({
                       ...prev,
@@ -253,7 +255,6 @@ export const BlogEditor = ({
                     ref={contentInputRef}
                     {...contentProps}
                     key={contentProps.key}
-                    value={interactiveInputValues.content}
                     onChange={(e) =>
                       setInteractiveInputValues((prev) => ({
                         ...prev,
