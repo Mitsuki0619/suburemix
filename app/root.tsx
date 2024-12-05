@@ -1,14 +1,28 @@
-import type { LinksFunction } from '@remix-run/cloudflare'
+import './tailwind.css'
 
 import {
-  Links,
+  json,
+  type LinksFunction,
+  type LoaderFunctionArgs,
+} from '@remix-run/cloudflare'
+import {
   Meta,
-  Outlet,
-  Scripts,
+  Links,
   ScrollRestoration,
+  Scripts,
+  useLoaderData,
+  Outlet,
 } from '@remix-run/react'
+import { useEffect } from 'react'
+import { getToast } from 'remix-toast'
 
-import './tailwind.css'
+import { Toaster } from './components/ui/toaster'
+import { toast as showToast } from './hooks/use-toast'
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { toast, headers } = await getToast(request)
+  return json({ toast }, { headers })
+}
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -34,6 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <Toaster />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -42,5 +57,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const { toast } = useLoaderData<typeof loader>()
+
+  useEffect(() => {
+    if (toast) {
+      showToast({
+        title: toast.message,
+        description: toast.description,
+      })
+    }
+  }, [toast])
+
   return <Outlet />
 }

@@ -7,17 +7,13 @@ export const createUser = async (
 ) => {
   const { name, email, password } = data
 
-  if (!(name && email && password)) {
-    throw new Error('Invalid input')
-  }
-
   const existingUser = await context.db.user.findUnique({ where: { email } })
 
   if (existingUser) {
     return { error: { message: 'メールアドレスは既に登録済みです' } }
   }
 
-  const hashedPassword = await bcrypt.hash(data.password, 12)
+  const hashedPassword = await bcrypt.hash(password, 12)
   const newUser = await context.db.user.create({
     data: { name, email, password: hashedPassword, image: '' },
   })

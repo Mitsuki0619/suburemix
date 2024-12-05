@@ -4,17 +4,12 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
-  redirect,
 } from '@remix-run/cloudflare'
-import {
-  ClientActionFunctionArgs,
-  useActionData,
-  useLoaderData,
-} from '@remix-run/react'
+import { useActionData, useLoaderData } from '@remix-run/react'
+import { jsonWithError, jsonWithSuccess, redirectWithError } from 'remix-toast'
 import { z } from 'zod'
 
 import { BlogEditor } from '~/features/blogs/BlogEditor'
-import { toast } from '~/hooks/use-toast'
 import { getAuthenticator } from '~/services/auth/auth.server'
 import { createBlog } from '~/services/blog/createBlog.server'
 import { getCategories } from '~/services/blog/getCategories.server'
@@ -30,7 +25,9 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
   if (!user) {
-    return redirect('/')
+    return redirectWithError('/', {
+      message: 'You must be signed in to create a blog',
+    })
   }
   const categories = await getCategories(context)
   const categoriesOptions = categories.map((category) => ({
@@ -46,10 +43,15 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
   const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
   if (!user) {
-    return submission.reply()
+    return jsonWithError(
+      { result: submission.reply() },
+      {
+        message: 'You must be signed in to create a blog',
+      }
+    )
   }
   if (submission.status !== 'success') {
-    return submission.reply()
+    return json({ result: submission.reply() })
   }
   await createBlog(context, {
     title: String(formData.get('title')),
@@ -58,21 +60,19 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
     published: Boolean(formData.get('published')),
     userId: user.id,
   })
-  return submission.reply({ resetForm: true })
+  return jsonWithSuccess(
+    { result: submission.reply({ resetForm: true }) },
+    {
+      message: 'Blog created successfully',
+      description: 'Your blog has been created successfully',
+    }
+  )
 }
-
-export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
-  const data = await serverAction<typeof action>()
-  if (data.status === 'error') return data
-  toast({ title: 'Success', description: 'Blog created successfully' })
-  return data
-}
-
 export default function Index() {
   const { categoriesOptions } = useLoaderData<typeof loader>()
-  const lastResult = useActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
   const [form, fields] = useForm({
-    lastResult,
+    lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: postBlogSchema })
     },

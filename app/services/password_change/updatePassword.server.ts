@@ -14,10 +14,6 @@ export const updatePassword = async (
 ) => {
   const { currentPassword, newPassword } = request
 
-  if (!currentPassword || !newPassword) {
-    throw new Error('Invalid Request')
-  }
-
   const updateUser = await context.db.user.findUnique({
     where: { id: request.userId },
     select: {
@@ -26,7 +22,7 @@ export const updatePassword = async (
   })
 
   if (!updateUser) {
-    throw new Error('User not found')
+    return { error: { message: 'User not found' } }
   }
 
   const passwordMatch = await bcrypt.compare(
@@ -35,7 +31,7 @@ export const updatePassword = async (
   )
 
   if (!passwordMatch) {
-    throw new Error('Invalid password')
+    return { error: { message: 'Current password is incorrect' } }
   }
 
   const hashedPassword = await bcrypt.hash(newPassword, 12)

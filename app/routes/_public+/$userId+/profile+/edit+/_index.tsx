@@ -20,6 +20,7 @@ import {
 } from '@remix-run/react'
 import { Camera, Save } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { z } from 'zod'
 import { zx } from 'zodix'
 
@@ -95,23 +96,29 @@ export const action = async ({
   const formData = await request.clone().formData()
   const submission = parseWithZod(formData, { schema: schemaForUpdateProfile })
   if (!user) {
-    return json(
-      submission.reply({
-        fieldErrors: {
-          userId: ['You must be signed in to update your profile'],
-        },
-      })
+    return jsonWithError(
+      {
+        result: submission.reply(),
+      },
+      {
+        message: 'Unauthorized',
+        description: 'You must be logged in to update your profile',
+      }
     )
   }
   if (user.id !== params.userId) {
-    return json(
-      submission.reply({
-        fieldErrors: { userId: ['You can only update your own profile'] },
-      })
+    return jsonWithError(
+      {
+        result: submission.reply(),
+      },
+      {
+        message: 'Unauthorized',
+        description: 'You are not authorized to update this profile',
+      }
     )
   }
   if (submission.status !== 'success') {
-    return submission.reply()
+    return json({ result: submission.reply() })
   }
   const { newImageFile, imageUrl, name, email, bio } = submission.value
 
@@ -144,7 +151,14 @@ export const action = async ({
   session.set(authenticator.sessionKey, { ...user, ...newUserData })
   const cookie = await sessionStorage.commitSession(session)
 
-  return json(submission.reply(), { headers: { 'Set-Cookie': cookie } })
+  return jsonWithSuccess(
+    { result: submission.reply() },
+    {
+      message: 'Profile updated successfully',
+      description: 'Your profile has been updated successfully',
+    },
+    { headers: { 'Set-Cookie': cookie } }
+  )
 }
 
 export const loader = async ({
@@ -166,11 +180,11 @@ export const loader = async ({
 
 export default function Index() {
   const profile = useLoaderData<typeof loader>()
-  const lastResult = useActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
   const profileImageInputRef = useRef<HTMLInputElement>(null)
   const [form, { name, email, imageUrl, newImageFile, bio }] = useForm({
-    lastResult,
+    lastResult: actionData?.result,
     defaultValue: {
       name: profile?.name,
       email: profile?.email,
