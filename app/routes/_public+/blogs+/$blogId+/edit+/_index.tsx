@@ -82,7 +82,7 @@ export const action = async ({
 export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
   const data = await serverAction<typeof action>()
   if (data.status === 'error') return data
-  toast({ title: 'Success', description: 'Blog created successfully' })
+  toast({ title: 'Success', description: 'Blog updated successfully' })
   return data
 }
 
