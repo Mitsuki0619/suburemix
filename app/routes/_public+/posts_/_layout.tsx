@@ -14,7 +14,7 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   return json({ email, name, id, role, image })
 }
 
-export default function App() {
+export default function PublicLayout() {
   const user = useLoaderData<typeof loader>()
   return (
     <Layout user={user}>

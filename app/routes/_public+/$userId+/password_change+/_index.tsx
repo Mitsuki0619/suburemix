@@ -1,13 +1,8 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { ActionFunctionArgs } from '@remix-run/cloudflare'
-import {
-  ClientActionFunctionArgs,
-  Form,
-  json,
-  useActionData,
-  useNavigation,
-} from '@remix-run/react'
+import { Form, useActionData, useNavigation } from '@remix-run/react'
+import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { z } from 'zod'
 
 import { Button } from '~/components/ui/button'
@@ -20,7 +15,6 @@ import {
 } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
-import { toast } from '~/hooks/use-toast'
 import { getAuthenticator } from '~/services/auth/auth.server'
 import { updatePassword } from '~/services/password_change/updatePassword.server'
 
@@ -52,48 +46,50 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   const formData = await request.clone().formData()
   const submission = parseWithZod(formData, { schema: passwordChangeSchema })
   if (submission.status !== 'success') {
-    return submission.reply()
+    return { result: submission.reply() }
   }
   if (!user) {
-    return json(
-      submission.reply({
-        fieldErrors: {
-          currentPassword: ['You must be signed in to change your password'],
-        },
-      })
+    return jsonWithError(
+      {
+        result: submission.reply(),
+      },
+      {
+        message: 'You must be signed in to change your password',
+        description: 'Please sign in to change your password.',
+      }
     )
   }
   const { currentPassword, newPassword } = submission.value
-  try {
-    await updatePassword(context, {
-      userId: user.id,
-      currentPassword,
-      newPassword,
-    })
-    return json(submission.reply({ resetForm: true }))
-  } catch (error) {
-    return json(
-      submission.reply({
-        fieldErrors: {
-          currentPassword: ['Current password is incorrect'],
-        },
-      })
+  const result = await updatePassword(context, {
+    userId: user.id,
+    currentPassword,
+    newPassword,
+  })
+  if (result?.error) {
+    return jsonWithError(
+      {
+        result: submission.reply(),
+      },
+      {
+        message: 'Invalid Request',
+        description: result.error.message,
+      }
     )
   }
-}
-
-export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
-  const data = await serverAction<typeof action>()
-  if (data.status === 'error') return data
-  toast({ title: 'Success', description: 'Password changed successfully' })
-  return data
+  return jsonWithSuccess(
+    { result: submission.reply({ resetForm: true }) },
+    {
+      message: 'Success',
+      description: 'Password changed successfully',
+    }
+  )
 }
 
 export default function Index() {
-  const lastResult = useActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
   const [form, { currentPassword, newPassword, confirmNewPassword }] = useForm({
-    lastResult,
+    lastResult: actionData?.result,
     defaultValue: {
       currentPassword: '',
       newPassword: '',

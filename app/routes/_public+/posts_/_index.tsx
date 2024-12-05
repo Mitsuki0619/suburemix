@@ -15,6 +15,7 @@ import {
 } from '@remix-run/react'
 import { Send } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import { jsonWithError } from 'remix-toast'
 import { z } from 'zod'
 
 import { Button } from '~/components/ui/button'
@@ -44,38 +45,44 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
     case 'POST': {
       const submission = parseWithZod(formData, { schema: schemaForCreatePost })
       if (submission.status !== 'success') {
-        return submission.reply()
+        return { result: submission.reply() }
       }
       if (!user) {
-        return json(
-          submission.reply({
-            fieldErrors: { content: ['You must be signed in to post'] },
-          })
+        return jsonWithError(
+          {
+            result: submission.reply(),
+          },
+          {
+            message: 'You must be signed in to post',
+          }
         )
       }
       await createPost(context, {
         content: String(formData.get('content')),
         userId: user.id,
       })
-      return json(submission.reply())
+      return json({ result: submission.reply() })
     }
     case 'DELETE': {
       const submission = parseWithZod(formData, { schema: schemaForDeletePost })
       if (submission.status !== 'success') {
-        return submission.reply()
+        return { result: submission.reply() }
       }
       if (!user) {
-        return json(
-          submission.reply({
-            fieldErrors: { id: ['You must be signed in to delete a post'] },
-          })
+        return jsonWithError(
+          {
+            result: submission.reply(),
+          },
+          {
+            message: 'You must be signed in to delete a post',
+          }
         )
       }
       await deletePost(context, {
         postId: Number(formData.get('id')),
         userId: user.id,
       })
-      return json(submission.reply())
+      return json({ result: submission.reply() })
     }
   }
 }
@@ -86,14 +93,14 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
 }
 
 export default function Index() {
-  const lastResult = useActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
   const posts = useLoaderData<typeof loader>()
   const user = useOutletContext<UserForClient>()
   const $formRef = useRef<HTMLFormElement>(null)
   const fetcher = useFetcher()
   const revalidator = useRevalidator()
   const [form, { content }] = useForm({
-    lastResult,
+    lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: schemaForCreatePost })
     },

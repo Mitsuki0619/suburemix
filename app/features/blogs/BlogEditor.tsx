@@ -65,22 +65,23 @@ export const BlogEditor = ({
   const navigation = useNavigation()
   const contentInputRef = useRef<HTMLTextAreaElement>(null)
   const categoriesInputControl = useInputControl(categories)
-  const insertMarkdown = (prefix: string, suffix: string = '') => {
+  const insertMarkdown = (prefix: string = '', suffix: string = '') => {
     const textarea = contentInputRef.current
     if (!textarea) return
     const start = textarea.selectionStart
     const end = textarea.selectionEnd
-    const selectedText = interactiveInputValues.content
-      ?.toString()
+    const selectedText = (interactiveInputValues.content ?? '')
+      .toString()
       .substring(start, end)
     const replacement = `${prefix}${selectedText}${suffix}`
     setInteractiveInputValues((prev) => ({
       ...prev,
-      content: `${prev.content?.slice(
+      content: `${(prev.content ?? '').slice(
         0,
         start
-      )}${replacement}${prev.content?.slice(end)}`,
+      )}${replacement}${(prev.content ?? '').slice(end)}`,
     }))
+    console.log(interactiveInputValues.content)
   }
   const handleCheckCategory = (category: string) => {
     if (!Array.isArray(interactiveInputValues.categories)) return
@@ -254,6 +255,7 @@ export const BlogEditor = ({
                     className="h-[800px] text-lg font-mono resize-none"
                     ref={contentInputRef}
                     {...contentProps}
+                    value={interactiveInputValues.content}
                     key={contentProps.key}
                     onChange={(e) =>
                       setInteractiveInputValues((prev) => ({

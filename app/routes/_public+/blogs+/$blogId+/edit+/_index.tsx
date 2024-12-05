@@ -4,18 +4,13 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
-  redirect,
 } from '@remix-run/cloudflare'
-import {
-  ClientActionFunctionArgs,
-  useActionData,
-  useLoaderData,
-} from '@remix-run/react'
+import { useActionData, useLoaderData } from '@remix-run/react'
+import { jsonWithError, jsonWithSuccess, redirectWithError } from 'remix-toast'
 import { z } from 'zod'
 import { zx } from 'zodix'
 
 import { BlogEditor } from '~/features/blogs/BlogEditor'
-import { toast } from '~/hooks/use-toast'
 import { getAuthenticator } from '~/services/auth/auth.server'
 import { getBlog } from '~/services/blog/getBlog.server'
 import { getCategories } from '~/services/blog/getCategories.server'
@@ -36,7 +31,9 @@ export const loader = async ({
   const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
   if (!user) {
-    return redirect('/')
+    return redirectWithError('/', {
+      message: 'You must be signed in to edit a blog',
+    })
   }
   const categories = await getCategories(context)
   const categoriesOptions = categories.map((category) => ({
@@ -63,10 +60,15 @@ export const action = async ({
     blogId: z.preprocess((v) => Number(v), z.number()),
   })
   if (!user) {
-    return submission.reply()
+    return jsonWithError(
+      { result: submission.reply() },
+      {
+        message: 'You must be signed in to edit a blog',
+      }
+    )
   }
   if (submission.status !== 'success') {
-    return submission.reply()
+    return json({ result: submission.reply() })
   }
   await updateBlog(context, {
     id: blogId,
@@ -76,22 +78,21 @@ export const action = async ({
     published: Boolean(formData.get('published')),
     userId: user.id,
   })
-  return submission.reply()
-}
-
-export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
-  const data = await serverAction<typeof action>()
-  if (data.status === 'error') return data
-  toast({ title: 'Success', description: 'Blog updated successfully' })
-  return data
+  return jsonWithSuccess(
+    { result: submission.reply() },
+    {
+      message: 'Blog updated successfully',
+      description: 'Your blog has been updated successfully',
+    }
+  )
 }
 
 export default function Index() {
   const { categoriesOptions, blog } = useLoaderData<typeof loader>()
-  const lastResult = useActionData<typeof action>()
+  const actionData = useActionData<typeof action>()
 
   const [form, fields] = useForm({
-    lastResult,
+    lastResult: actionData?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: patchBlogSchema })
     },

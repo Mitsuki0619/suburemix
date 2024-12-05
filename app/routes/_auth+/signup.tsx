@@ -45,20 +45,20 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   const formData = await request.clone().formData()
   const submission = parseWithZod(formData, { schema: signUpSchema })
   if (submission.status !== 'success') {
-    return json(submission.reply())
+    return json({ result: submission.reply() })
   }
   const name = String(formData.get('name'))
   const email = String(formData.get('email'))
   const password = String(formData.get('password'))
   const result = await createUser(context, { name, email, password })
   if (result.error) {
-    return json(
-      submission.reply({
+    return json({
+      result: submission.reply({
         fieldErrors: {
           email: [result.error.message],
         },
-      })
-    )
+      }),
+    })
   }
   const { authenticator } = getAuthenticator(context)
   return await authenticator.authenticate('user-pass', request, {
@@ -75,9 +75,9 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 }
 
 export const SignUpPage: React.FC = () => {
-  const lastResult = useActionData<typeof action>()
+  const data = useActionData<typeof action>()
   const [form, { email, password, name }] = useForm({
-    lastResult,
+    lastResult: data?.result,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: signUpSchema })
     },
@@ -86,7 +86,7 @@ export const SignUpPage: React.FC = () => {
   })
 
   return (
-    <div className="grid place-content-center w-full h-full">
+    <div className="grid place-content-center w-full">
       <div>
         <Card className="w-[400px]">
           <CardHeader className="space-y-1">

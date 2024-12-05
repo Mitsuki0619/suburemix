@@ -113,6 +113,9 @@ importers:
       remix-hono:
         specifier: ^0.0.16
         version: 0.0.16(@remix-run/cloudflare@2.12.1(@cloudflare/workers-types@4.20241004.0)(typescript@5.6.2))(typescript@5.6.2)(zod@3.23.8)
+      remix-toast:
+        specifier: ^1.2.2
+        version: 1.2.2(@remix-run/server-runtime@2.12.1(typescript@5.6.2))
       tailwind-merge:
         specifier: ^2.5.3
         version: 2.5.3
@@ -4372,6 +4375,11 @@ packages:
         optional: true
       zod:
         optional: true
+
+  remix-toast@1.2.2:
+    resolution: {integrity: sha512-GayR/ozpqCZWI9AK0+wzp/SaD3jIUnx7IBSL4Oioglp1gs3waGWlHhgBtG+IbLmCR9iUzzrux0HiZQdk8uwYVg==}
+    peerDependencies:
+      '@remix-run/server-runtime': '>=1.15'
 
   require-like@0.1.2:
     resolution: {integrity: sha512-oyrU88skkMtDdauHDuKVrgR+zuItqr6/c//FXzvmxRGMexSDc6hNvJInGW3LL46n+8b50RykrvwSUIIQH2LQ5A==}
@@ -10076,6 +10084,11 @@ snapshots:
       zod: 3.23.8
     transitivePeerDependencies:
       - typescript
+
+  remix-toast@1.2.2(@remix-run/server-runtime@2.12.1(typescript@5.6.2)):
+    dependencies:
+      '@remix-run/server-runtime': 2.12.1(typescript@5.6.2)
+      zod: 3.23.8
 
   require-like@0.1.2: {}
 
