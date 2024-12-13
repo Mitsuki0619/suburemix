@@ -1,7 +1,13 @@
+import { parseWithZod } from '@conform-to/zod'
 import { PopoverClose } from '@radix-ui/react-popover'
-import { json, LoaderFunctionArgs } from '@remix-run/cloudflare'
-import { Link, useLoaderData } from '@remix-run/react'
+import {
+  ActionFunctionArgs,
+  json,
+  LoaderFunctionArgs,
+} from '@remix-run/cloudflare'
+import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { Clock, Edit, Pencil, Trash2 } from 'lucide-react'
+import { jsonWithError, jsonWithSuccess } from 'remix-toast'
 import { z } from 'zod'
 import { zx } from 'zodix'
 
@@ -9,12 +15,14 @@ import { BackButtonLayout } from '~/components/back-button-layout'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { Input } from '~/components/ui/input'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '~/components/ui/popover'
 import { getAuthenticator } from '~/services/auth/auth.server'
+import { deleteBlog } from '~/services/blog/deleteBlog.server'
 import { getPublicProfile } from '~/services/profile/getPublicProfile.server'
 
 export const loader = async ({
@@ -35,11 +43,45 @@ export const loader = async ({
   })
 }
 
+const deletePostSchema = z.object({
+  id: z.number(),
+})
+
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { authenticator } = getAuthenticator(context)
+  const user = await authenticator.isAuthenticated(request)
+  const formData = await request.clone().formData()
+  const submission = parseWithZod(formData, { schema: deletePostSchema })
+  if (submission.status !== 'success') {
+    return { result: submission.reply() }
+  }
+  switch (request.method) {
+    case 'DELETE': {
+      if (!user) {
+        return jsonWithError(
+          {
+            result: submission.reply(),
+          },
+          {
+            message: 'You must be signed in to delete a post',
+          }
+        )
+      }
+      await deleteBlog(context, {
+        blogId: Number(formData.get('id')),
+        userId: user.id,
+      })
+      return jsonWithSuccess({ result: 'success' }, { message: 'Post deleted' })
+    }
+  }
+}
+
 export default function Index() {
   const {
     me,
     thisUser: { name, image, id, bio, blogs },
   } = useLoaderData<typeof loader>()
+  const fetcher = useFetcher()
 
   return (
     <BackButtonLayout>
@@ -147,13 +189,22 @@ export default function Index() {
                                       Cancel
                                     </Button>
                                   </PopoverClose>
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => {}}
-                                  >
-                                    Delete
-                                  </Button>
+                                  <fetcher.Form method="delete">
+                                    <Input
+                                      type="hidden"
+                                      name="id"
+                                      value={blog.id}
+                                    />
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      type="submit"
+                                      disabled={fetcher.state === 'submitting'}
+                                      onClick={() => {}}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </fetcher.Form>
                                 </div>
                               </PopoverContent>
                             </Popover>
