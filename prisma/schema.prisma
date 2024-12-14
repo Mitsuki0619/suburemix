@@ -16,8 +16,8 @@ model User {
   name      String
   image     String?
   role      Role     @default(USER)
+  messages  Message[]
   posts     Post[]
-  blogs     Blog[]
   profile   Profile?
   provider  String   @default("Credentials")
   createdAt DateTime @default(now())
@@ -31,16 +31,17 @@ model Profile {
   userId String  @unique
 }
 
-model Post {
+model Message {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   content   String
   author    User     @relation(fields: [authorId], references: [id])
   authorId  String
+	@@map("Message")
 }
 
-model Blog {
+model Post {
   id                Int                 @id @default(autoincrement())
   title             String
   content           String
@@ -56,7 +57,7 @@ model Blog {
 model Category {
   id                Int                 @id @default(autoincrement())
   name              String
-  blogs             Blog[]
+  posts             Post[]
 }
 
 enum Role {

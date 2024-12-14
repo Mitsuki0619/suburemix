@@ -43,7 +43,7 @@ interface Props {
   published: FieldMetadata<boolean>
 }
 
-export const BlogEditor = ({
+export const PostEditor = ({
   type,
   title,
   form,
@@ -104,7 +104,7 @@ export const BlogEditor = ({
   return (
     <div className="container mx-auto p-4 max-w-5xl">
       <Form {...formProps} method="post">
-        <h1 className="text-xl font-bold mb-8">{type.toUpperCase()} Blog</h1>
+        <h1 className="text-xl font-bold mb-8">{type.toUpperCase()} Post</h1>
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -113,7 +113,7 @@ export const BlogEditor = ({
                   Title
                 </Label>
                 <Input
-                  placeholder="Enter your blog title"
+                  placeholder="Enter your post title"
                   {...titleProps}
                   key={titleProps.key}
                   onChange={(e) =>
@@ -251,7 +251,7 @@ export const BlogEditor = ({
                     </Button>
                   </div>
                   <Textarea
-                    placeholder="Write your blog content here (using Markdown)"
+                    placeholder="Write your post content here (using Markdown)"
                     className="h-[800px] text-lg font-mono resize-none"
                     ref={contentInputRef}
                     {...contentProps}

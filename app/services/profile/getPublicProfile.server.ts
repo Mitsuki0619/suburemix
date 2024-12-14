@@ -14,7 +14,7 @@ export const getPublicProfile = async (
       name: true,
       role: true,
       image: true,
-      blogs: {
+      posts: {
         where: {
           published: isAuthUser ? undefined : true,
         },

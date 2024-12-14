@@ -21,19 +21,19 @@ import { z } from 'zod'
 import { Button } from '~/components/ui/button'
 import { ScrollArea } from '~/components/ui/scroll-area'
 import { Textarea } from '~/components/ui/textarea'
-import { PostItem } from '~/features/posts/components/PostItem'
+import { MessageItem } from '~/features/chat/components/MessageItem'
 import { UserForClient } from '~/routes/_auth+/_layout'
 import { getAuthenticator } from '~/services/auth/auth.server'
-import { createPost } from '~/services/post/createPost.server'
-import { deletePost } from '~/services/post/deletePost.server'
-import { getPosts } from '~/services/post/getPosts.server'
+import { createMessage } from '~/services/chat/createMessage.server'
+import { deleteMessage } from '~/services/chat/deleteMessage.server'
+import { getMessages } from '~/services/chat/getMessages.server'
 
-export const schemaForCreatePost = z.object({
+export const schemaForCreateMessage = z.object({
   content: z
     .string({ required_error: 'Content is required' })
     .max(255, 'Content must be less than 255 characters'),
 })
-export const schemaForDeletePost = z.object({
+export const schemaForDeleteMessage = z.object({
   id: z.number({ required_error: 'ID is required' }),
 })
 
@@ -43,7 +43,9 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   const formData = await request.clone().formData()
   switch (request.method) {
     case 'POST': {
-      const submission = parseWithZod(formData, { schema: schemaForCreatePost })
+      const submission = parseWithZod(formData, {
+        schema: schemaForCreateMessage,
+      })
       if (submission.status !== 'success') {
         return { result: submission.reply() }
       }
@@ -53,18 +55,20 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
             result: submission.reply(),
           },
           {
-            message: 'You must be signed in to post',
+            message: 'You must be signed in to send a message',
           }
         )
       }
-      await createPost(context, {
+      await createMessage(context, {
         content: String(formData.get('content')),
         userId: user.id,
       })
       return json({ result: submission.reply() })
     }
     case 'DELETE': {
-      const submission = parseWithZod(formData, { schema: schemaForDeletePost })
+      const submission = parseWithZod(formData, {
+        schema: schemaForDeleteMessage,
+      })
       if (submission.status !== 'success') {
         return { result: submission.reply() }
       }
@@ -74,12 +78,12 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
             result: submission.reply(),
           },
           {
-            message: 'You must be signed in to delete a post',
+            message: 'You must be signed in to delete a message',
           }
         )
       }
-      await deletePost(context, {
-        postId: Number(formData.get('id')),
+      await deleteMessage(context, {
+        messageId: Number(formData.get('id')),
         userId: user.id,
       })
       return json({ result: submission.reply() })
@@ -88,13 +92,13 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
 }
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
-  const posts = await getPosts(context)
-  return json(posts)
+  const messages = await getMessages(context)
+  return json(messages)
 }
 
 export default function Index() {
   const actionData = useActionData<typeof action>()
-  const posts = useLoaderData<typeof loader>()
+  const messages = useLoaderData<typeof loader>()
   const user = useOutletContext<UserForClient>()
   const $formRef = useRef<HTMLFormElement>(null)
   const fetcher = useFetcher()
@@ -102,12 +106,12 @@ export default function Index() {
   const [form, { content }] = useForm({
     lastResult: actionData?.result,
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: schemaForCreatePost })
+      return parseWithZod(formData, { schema: schemaForCreateMessage })
     },
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',
   })
-  const postContentProps = getInputProps(content, { type: 'text' })
+  const messageContentProps = getInputProps(content, { type: 'text' })
 
   useEffect(() => {
     if (fetcher.state === 'idle') {
@@ -118,8 +122,8 @@ export default function Index() {
   return (
     <div className="w-full max-w-xl mx-auto flex flex-col bg-background">
       <ScrollArea className="flex-grow p-4 max-h-[70vh]">
-        {posts.map((post) => (
-          <PostItem key={post.id} post={post} user={user} />
+        {messages.map((message) => (
+          <MessageItem key={message.id} message={message} user={user} />
         ))}
       </ScrollArea>
       <div className="w-full">
@@ -142,8 +146,8 @@ export default function Index() {
         >
           <div className="flex-grow">
             <Textarea
-              {...postContentProps}
-              key={postContentProps.key}
+              {...messageContentProps}
+              key={messageContentProps.key}
               disabled={fetcher.state === 'submitting' || !user}
               className="min-h-[80px]"
             />

@@ -1,18 +1,18 @@
-import { Blog, User } from '@prisma/client/edge'
+import { Post, User } from '@prisma/client/edge'
 import { AppLoadContext } from '@remix-run/cloudflare'
 
-export const createBlog = async (
+export const createPost = async (
   context: AppLoadContext,
   request: {
-    title: Blog['title']
+    title: Post['title']
     categories: number[]
-    content: Blog['content']
-    published: Blog['published']
+    content: Post['content']
+    published: Post['published']
     userId: User['id']
   }
 ) => {
   const { title, categories, content, published, userId } = request
-  const newBlog = await context.db.blog.create({
+  const newPost = await context.db.post.create({
     data: {
       title,
       content,
@@ -24,5 +24,5 @@ export const createBlog = async (
       },
     },
   })
-  return { id: newBlog.id, title: newBlog.title, content: newBlog.content }
+  return { id: newPost.id, title: newPost.title, content: newPost.content }
 }

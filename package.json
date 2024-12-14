@@ -16,7 +16,7 @@
     "preview": "pnpm run build && wrangler pages dev",
     "cf-typegen": "wrangler types",
     "migrate": "dotenv -e .dev.vars -- pnpm prisma migrate dev",
-    "migrate:gen": "prisma migrate generate --no-engine"
+    "migrate:gen": "prisma generate --no-engine"
   },
   "dependencies": {
     "@conform-to/react": "^1.2.2",

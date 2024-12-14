@@ -32,11 +32,11 @@ export const Header = ({ user }: HeaderProps) => {
             <nav className="hidden md:flex space-x-4 items-center">
               {user && (
                 <Button variant="default" asChild>
-                  <Link to="/blogs/create">Create Blog</Link>
+                  <Link to="/posts/create">Create Post</Link>
                 </Button>
               )}
-              <Link to="/posts" className="text-foreground hover:text-primary">
-                Posts
+              <Link to="/chat" className="text-foreground hover:text-primary">
+                Chat
               </Link>
             </nav>
             {user ? (
@@ -100,10 +100,10 @@ export const Header = ({ user }: HeaderProps) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link to="/blog">Blog</Link>
+                  <Link to="/posts">Post</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/posts">Posts</Link>
+                  <Link to="/chat">Chat</Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

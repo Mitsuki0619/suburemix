@@ -9,46 +9,46 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover'
 import { UserForClient } from '~/routes/_auth+/_layout'
-import { GetPostsResponse } from '~/services/post/getPosts.server'
+import { GetMessagesResponse } from '~/services/chat/getMessages.server'
 
 interface Props {
-  post: GetPostsResponse[number]
+  message: GetMessagesResponse[number]
   user: UserForClient
 }
 
-export const PostItem = ({ post, user }: Props) => {
-  const isCurrentUser = !!user?.id && user.id === post.author.id
+export const MessageItem = ({ message, user }: Props) => {
+  const isCurrentUser = !!user?.id && user.id === message.author.id
   const fetcher = useFetcher()
   return (
     <div
       className={`flex items-start space-x-2 mb-4 ${isCurrentUser ? 'flex-row-reverse space-x-reverse' : ''}`}
     >
-      <Link to={`/${post.author.id}/profile`}>
+      <Link to={`/${message.author.id}/profile`}>
         <Avatar className="w-8 h-8">
-          {post.author.image ? (
-            <AvatarImage src={post.author.image} alt="avatar" />
+          {message.author.image ? (
+            <AvatarImage src={message.author.image} alt="avatar" />
           ) : (
-            <AvatarFallback>{post.author.name}</AvatarFallback>
+            <AvatarFallback>{message.author.name}</AvatarFallback>
           )}
         </Avatar>
       </Link>
       <div className="flex flex-col">
         <Link
-          to={`/${post.author.id}/profile`}
+          to={`/${message.author.id}/profile`}
           className={`text-sm font-medium hover:underline ${isCurrentUser ? 'text-right' : ''}`}
         >
-          {post.author.name}
+          {message.author.name}
         </Link>
         {isCurrentUser ? (
           <Popover>
             <PopoverTrigger asChild>
               <div className="p-3 rounded-lg max-w-xs bg-primary text-primary-foreground ml-auto cursor-pointer whitespace-pre-wrap break-words">
-                {post.content}
+                {message.content}
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
               <fetcher.Form method="delete">
-                <input type="hidden" name="id" value={post.id} />
+                <input type="hidden" name="id" value={message.id} />
                 <Button
                   variant="ghost"
                   className="flex items-center text-destructive"
@@ -63,7 +63,7 @@ export const PostItem = ({ post, user }: Props) => {
           </Popover>
         ) : (
           <div className="p-3 rounded-lg max-w-xs bg-muted whitespace-pre-wrap break-words">
-            {post.content}
+            {message.content}
           </div>
         )}
       </div>
