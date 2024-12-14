@@ -9,7 +9,6 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
-  redirect,
 } from '@remix-run/cloudflare'
 import {
   Form,
@@ -20,7 +19,7 @@ import {
 } from '@remix-run/react'
 import { Camera, Save } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import { jsonWithError, jsonWithSuccess, redirectWithError } from 'remix-toast'
 import { z } from 'zod'
 import { zx } from 'zodix'
 
@@ -169,17 +168,20 @@ export const loader = async ({
   const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
   if (!user || user.id !== params.userId) {
-    return redirect(`/${params.userId}/profile`)
+    return redirectWithError(`/${params.userId}/profile`, {
+      message: 'Unauthorized',
+      description: 'You are not authorized to update this profile',
+    })
   }
   const { userId } = zx.parseParams(params, {
     userId: z.string(),
   })
   const profile = await getPrivateProfile(context, userId)
-  return json(profile)
+  return json({ profile, provider: user.provider })
 }
 
 export default function Index() {
-  const profile = useLoaderData<typeof loader>()
+  const { profile, provider } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
   const profileImageInputRef = useRef<HTMLInputElement>(null)
@@ -294,16 +296,18 @@ export default function Index() {
                     </p>
                   ))}
                 </div>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full"
-                  type="button"
-                >
-                  <Link to={`/${profile.id}/password_change`}>
-                    Change Password
-                  </Link>
-                </Button>
+                {provider === 'Credentials' && (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full"
+                    type="button"
+                  >
+                    <Link to={`/${profile.id}/password_change`}>
+                      Change Password
+                    </Link>
+                  </Button>
+                )}
                 <Button
                   className="w-full"
                   type="submit"

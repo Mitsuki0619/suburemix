@@ -9,6 +9,17 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 import { ReactCompilerConfig } from './react-compiler.config'
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      onwarn(warning, defaultHandler) {
+        if (warning.code === 'SOURCEMAP_ERROR') {
+          return
+        }
+
+        defaultHandler(warning)
+      },
+    },
+  },
   ssr: {
     resolve: {
       externalConditions: ['workerd', 'worker'],

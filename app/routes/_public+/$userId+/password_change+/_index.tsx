@@ -1,8 +1,8 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs } from '@remix-run/cloudflare'
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/cloudflare'
 import { Form, useActionData, useNavigation } from '@remix-run/react'
-import { jsonWithError, jsonWithSuccess } from 'remix-toast'
+import { jsonWithError, jsonWithSuccess, redirectWithError } from 'remix-toast'
 import { z } from 'zod'
 
 import { Button } from '~/components/ui/button'
@@ -17,6 +17,28 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { getAuthenticator } from '~/services/auth/auth.server'
 import { updatePassword } from '~/services/password_change/updatePassword.server'
+
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  const { authenticator } = getAuthenticator(context)
+  const user = await authenticator.isAuthenticated(request)
+  if (!user) {
+    return redirectWithError(
+      '/signin',
+      {
+        message: 'You must be signed in to change your password',
+        description: 'Please sign in to change your password.',
+      },
+      { status: 401 }
+    )
+  }
+  if (user.provider !== 'Credentials') {
+    return redirectWithError('/', {
+      message: 'Invalid Request',
+      description: 'You are not allowed to change your password.',
+    })
+  }
+  return {}
+}
 
 const passwordChangeSchema = z
   .object({
@@ -56,6 +78,17 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
       {
         message: 'You must be signed in to change your password',
         description: 'Please sign in to change your password.',
+      }
+    )
+  }
+  if (user.provider !== 'Credentials') {
+    return jsonWithError(
+      {
+        result: submission.reply(),
+      },
+      {
+        message: 'Invalid Request',
+        description: 'You are not allowed to change your password.',
       }
     )
   }

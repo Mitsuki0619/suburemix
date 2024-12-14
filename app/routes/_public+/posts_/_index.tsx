@@ -147,13 +147,15 @@ export default function Index() {
               disabled={fetcher.state === 'submitting' || !user}
               className="min-h-[80px]"
             />
-            <div className="max-h-10 h-10 mt-2 overflow-auto">
-              {content.errors?.map((error, index) => (
-                <p className="text-sm text-destructive mt-1" key={index}>
-                  {error}
-                </p>
-              ))}
-            </div>
+            {content.errors && (
+              <div className="max-h-10 h-10 mt-2 overflow-auto">
+                {content.errors?.map((error, index) => (
+                  <p className="text-sm text-destructive mt-1" key={index}>
+                    {error}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
           <Button
             type="submit"

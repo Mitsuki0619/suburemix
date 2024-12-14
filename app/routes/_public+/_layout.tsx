@@ -10,11 +10,11 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   if (!user) {
     return null
   }
-  const { email, name, id, role, image } = user
-  return json({ email, name, id, role, image })
+  const { email, name, id, role, image, provider } = user
+  return json({ email, name, id, role, image, provider })
 }
 
-export default function App() {
+export default function AppLayout() {
   const user = useLoaderData<typeof loader>()
   return (
     <Layout user={user}>
