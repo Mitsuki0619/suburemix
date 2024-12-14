@@ -10,10 +10,7 @@ import { Authenticator, AuthorizationError } from 'remix-auth'
 import { FormStrategy } from 'remix-auth-form'
 import { GoogleStrategy } from 'remix-auth-google'
 
-type UserForClient = Omit<
-  User,
-  'password' | 'createdAt' | 'updatedAt' | 'provider'
->
+type UserForClient = Omit<User, 'password' | 'createdAt' | 'updatedAt'>
 
 let _authenticatedUser: Authenticator<UserForClient> | null = null
 
@@ -57,7 +54,6 @@ export function getAuthenticator(context: AppLoadContext): {
         password: _1,
         createdAt: _2,
         updatedAt: _3,
-        provider: _4,
         ...userForClient
       } = user
       return userForClient
@@ -91,7 +87,6 @@ export function getAuthenticator(context: AppLoadContext): {
           password: _1,
           createdAt: _2,
           updatedAt: _3,
-          provider: _4,
           ...userForClient
         } = newUser
         return userForClient

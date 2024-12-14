@@ -7,7 +7,7 @@ import { getAuthenticator } from '~/services/auth/auth.server'
 
 export type UserForClient = Pick<
   User,
-  'email' | 'name' | 'id' | 'role' | 'image'
+  'email' | 'name' | 'id' | 'role' | 'image' | 'provider'
 > | null
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
@@ -16,8 +16,8 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   if (!user) {
     return null
   }
-  const { email, name, id, role, image } = user
-  return json({ email, name, id, role, image })
+  const { email, name, id, role, image, provider } = user
+  return json({ email, name, id, role, image, provider })
 }
 
 export default function App() {

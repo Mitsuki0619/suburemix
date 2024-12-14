@@ -5,7 +5,7 @@ import {
   LoaderFunctionArgs,
   json,
 } from '@remix-run/cloudflare'
-import { Form, useActionData, Link } from '@remix-run/react'
+import { Form, useActionData, Link, useNavigation } from '@remix-run/react'
 import { z } from 'zod'
 
 import { Icons } from '~/components/icons'
@@ -76,6 +76,7 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 
 export const SignUpPage: React.FC = () => {
   const data = useActionData<typeof action>()
+  const navigation = useNavigation()
   const [form, { email, password, name }] = useForm({
     lastResult: data?.result,
     onValidate({ formData }) {
@@ -164,7 +165,12 @@ export const SignUpPage: React.FC = () => {
                   </div>
                 )}
               </div>
-              <Button type="submit" name="_action" className="w-full">
+              <Button
+                type="submit"
+                name="_action"
+                className="w-full"
+                disabled={navigation.state === 'submitting'}
+              >
                 Sign up
               </Button>
             </Form>
