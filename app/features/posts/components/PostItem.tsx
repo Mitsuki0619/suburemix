@@ -1,4 +1,4 @@
-import { useFetcher } from '@remix-run/react'
+import { Link, useFetcher } from '@remix-run/react'
 import { Trash2 } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
@@ -23,19 +23,22 @@ export const PostItem = ({ post, user }: Props) => {
     <div
       className={`flex items-start space-x-2 mb-4 ${isCurrentUser ? 'flex-row-reverse space-x-reverse' : ''}`}
     >
-      <Avatar className="w-8 h-8">
-        {post.author.image ? (
-          <AvatarImage src={post.author.image} alt="avatar" />
-        ) : (
-          <AvatarFallback>{post.author.name}</AvatarFallback>
-        )}
-      </Avatar>
+      <Link to={`/${post.author.id}/profile`}>
+        <Avatar className="w-8 h-8">
+          {post.author.image ? (
+            <AvatarImage src={post.author.image} alt="avatar" />
+          ) : (
+            <AvatarFallback>{post.author.name}</AvatarFallback>
+          )}
+        </Avatar>
+      </Link>
       <div className="flex flex-col">
-        <span
-          className={`text-sm font-medium ${isCurrentUser ? 'text-right' : ''}`}
+        <Link
+          to={`/${post.author.id}/profile`}
+          className={`text-sm font-medium hover:underline ${isCurrentUser ? 'text-right' : ''}`}
         >
           {post.author.name}
-        </span>
+        </Link>
         {isCurrentUser ? (
           <Popover>
             <PopoverTrigger asChild>
