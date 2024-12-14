@@ -16,6 +16,7 @@ import {
   useActionData,
   useLoaderData,
   useNavigation,
+  useOutletContext,
 } from '@remix-run/react'
 import { Camera, Save } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -30,6 +31,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Textarea } from '~/components/ui/textarea'
+import { UserForClient } from '~/routes/_auth+/_layout'
 import { getAuthenticator } from '~/services/auth/auth.server'
 import { getPrivateProfile } from '~/services/profile/getPrivateProfile.server'
 import { updateProfile } from '~/services/profile/updateProfile.server'
@@ -177,11 +179,12 @@ export const loader = async ({
     userId: z.string(),
   })
   const profile = await getPrivateProfile(context, userId)
-  return json({ profile, provider: user.provider })
+  return json({ profile })
 }
 
 export default function Index() {
-  const { profile, provider } = useLoaderData<typeof loader>()
+  const user = useOutletContext<UserForClient>()
+  const { profile } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
   const profileImageInputRef = useRef<HTMLInputElement>(null)
@@ -296,7 +299,7 @@ export default function Index() {
                     </p>
                   ))}
                 </div>
-                {provider === 'Credentials' && (
+                {user?.provider === 'Credentials' && (
                   <Button
                     asChild
                     variant="outline"
