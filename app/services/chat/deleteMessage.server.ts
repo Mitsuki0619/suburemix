@@ -1,17 +1,17 @@
-import { Post, User } from '@prisma/client/edge'
+import { Message, User } from '@prisma/client/edge'
 import { AppLoadContext } from '@remix-run/cloudflare'
 
-export const deletePost = async (
+export const deleteMessage = async (
   context: AppLoadContext,
   request: {
-    postId: Post['id']
+    messageId: Message['id']
     userId: User['id']
   }
 ) => {
-  const { postId, userId } = request
-  const postAuthorID = await context.db.post.findUnique({
+  const { messageId, userId } = request
+  const postAuthorID = await context.db.message.findUnique({
     where: {
-      id: postId,
+      id: messageId,
     },
     select: {
       authorId: true,
@@ -20,9 +20,9 @@ export const deletePost = async (
   if (postAuthorID?.authorId !== userId) {
     throw new Error('Invalid Request')
   }
-  return await context.db.post.delete({
+  return await context.db.message.delete({
     where: {
-      id: postId,
+      id: messageId,
     },
   })
 }

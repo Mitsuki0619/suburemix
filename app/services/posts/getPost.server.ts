@@ -1,13 +1,13 @@
-import { Blog, User } from '@prisma/client/edge'
+import { Post, User } from '@prisma/client/edge'
 import { AppLoadContext } from '@remix-run/cloudflare'
 
-export const getBlog = async (
+export const getPost = async (
   context: AppLoadContext,
-  blogId: Blog['id'],
+  postId: Post['id'],
   userId?: User['id']
 ) => {
-  const blog = await context.db.blog.findUnique({
-    where: { id: blogId },
+  const post = await context.db.post.findUnique({
+    where: { id: postId },
     select: {
       id: true,
       title: true,
@@ -23,11 +23,11 @@ export const getBlog = async (
       },
     },
   })
-  if (!blog) {
-    throw new Error('Blog not found')
+  if (!post) {
+    throw new Error('Post not found')
   }
-  if (userId && blog.authorId !== userId && !blog.published) {
-    throw new Error('Blog not found')
+  if (userId && post.authorId !== userId && !post.published) {
+    throw new Error('Post not found')
   }
-  return blog
+  return post
 }

@@ -1,10 +1,10 @@
-import { Post, User } from '@prisma/client/edge'
+import { Message, User } from '@prisma/client/edge'
 import { AppLoadContext } from '@remix-run/cloudflare'
 
-export const createPost = async (
+export const createMessage = async (
   context: AppLoadContext,
   request: {
-    content: Post['content']
+    content: Message['content']
     userId: User['id']
   }
 ) => {
@@ -13,8 +13,8 @@ export const createPost = async (
   if (!content) {
     throw new Error('Invalid Request')
   }
-  const newPost = await context.db.post.create({
+  const newMessage = await context.db.message.create({
     data: { content, authorId: userId },
   })
-  return { id: newPost.id, content: newPost.content }
+  return { id: newMessage.id, content: newMessage.content }
 }

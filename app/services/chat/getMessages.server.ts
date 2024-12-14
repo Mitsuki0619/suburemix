@@ -1,8 +1,8 @@
 import { Prisma } from '@prisma/client/edge'
 import { AppLoadContext } from '@remix-run/cloudflare'
 
-export const getPosts = async (context: AppLoadContext) => {
-  const posts = await context.db.post.findMany({
+export const getMessages = async (context: AppLoadContext) => {
+  const messages = await context.db.message.findMany({
     select: {
       id: true,
       content: true,
@@ -15,7 +15,7 @@ export const getPosts = async (context: AppLoadContext) => {
       },
     },
   })
-  return posts
+  return messages
 }
 
-export type GetPostsResponse = Prisma.PromiseReturnType<typeof getPosts>
+export type GetMessagesResponse = Prisma.PromiseReturnType<typeof getMessages>

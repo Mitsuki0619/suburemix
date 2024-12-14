@@ -24,7 +24,6 @@ import { jsonWithError, jsonWithSuccess, redirectWithError } from 'remix-toast'
 import { z } from 'zod'
 import { zx } from 'zodix'
 
-import { BackButtonLayout } from '~/components/back-button-layout'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -210,120 +209,118 @@ export default function Index() {
 
   if (!profile) return null
   return (
-    <BackButtonLayout>
-      <div className="mx-auto px-4 pt-4 pb-8">
-        <Card className="max-w-2xl mx-auto w-96">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">
-              Edit Profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form method="post" {...getFormProps(form)} action="#">
-              <div className="text-center">
-                <div className="relative inline-block">
-                  <Avatar className="w-32 h-32">
-                    {previewImageUrl != null ? (
-                      <AvatarImage
-                        src={previewImageUrl}
-                        alt="プロフィールアイコン"
-                      />
-                    ) : (
-                      <AvatarFallback>{profile.name?.charAt(0)}</AvatarFallback>
-                    )}
-                  </Avatar>
-                  <Button
-                    size="icon"
-                    className="absolute bottom-0 right-0 rounded-full"
-                    type="button"
-                    onClick={() => profileImageInputRef.current?.click()}
-                  >
-                    <Camera className="h-4 w-4" />
-                    <span className="sr-only">Change profile picture</span>
-                  </Button>
-                  <Input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    ref={profileImageInputRef}
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (!file) return
-
-                      const reader = new FileReader()
-                      reader.readAsDataURL(file)
-                      reader.onload = (e) => {
-                        if (typeof e.target?.result !== 'string') return
-                        imageInputControl.change(e.target.result)
-
-                        setPreviewImageUrl(e.target.result)
-                      }
-                    }}
-                  />
-                  <Input {...getInputProps(imageUrl, { type: 'hidden' })} />
-                  {newImageFile.errors?.map((error, index) => (
-                    <p className="text-sm text-destructive mt-1" key={index}>
-                      {error}
-                    </p>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input {...getInputProps(name, { type: 'text' })} />
-                  {name.errors?.map((error, index) => (
-                    <p className="text-sm text-destructive mt-1" key={index}>
-                      {error}
-                    </p>
-                  ))}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input {...getInputProps(email, { type: 'email' })} />
-                  {email.errors?.map((error, index) => (
-                    <p className="text-sm text-destructive mt-1" key={index}>
-                      {error}
-                    </p>
-                  ))}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
-                  <Textarea
-                    className="min-h-[100px]"
-                    {...getInputProps(bio, { type: 'text' })}
-                  />
-                  {bio.errors?.map((error, index) => (
-                    <p className="text-sm text-destructive mt-1" key={index}>
-                      {error}
-                    </p>
-                  ))}
-                </div>
-                {user?.provider === 'Credentials' && (
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="w-full"
-                    type="button"
-                  >
-                    <Link to={`/${profile.id}/password_change`}>
-                      Change Password
-                    </Link>
-                  </Button>
-                )}
+    <div className="mx-auto px-4 pt-4 pb-8">
+      <Card className="max-w-2xl mx-auto w-96">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            Edit Profile
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form method="post" {...getFormProps(form)} action="#">
+            <div className="text-center">
+              <div className="relative inline-block">
+                <Avatar className="w-32 h-32">
+                  {previewImageUrl != null ? (
+                    <AvatarImage
+                      src={previewImageUrl}
+                      alt="プロフィールアイコン"
+                    />
+                  ) : (
+                    <AvatarFallback>{profile.name?.charAt(0)}</AvatarFallback>
+                  )}
+                </Avatar>
                 <Button
-                  className="w-full"
-                  type="submit"
-                  disabled={navigation.state === 'submitting'}
+                  size="icon"
+                  className="absolute bottom-0 right-0 rounded-full"
+                  type="button"
+                  onClick={() => profileImageInputRef.current?.click()}
                 >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
+                  <Camera className="h-4 w-4" />
+                  <span className="sr-only">Change profile picture</span>
                 </Button>
+                <Input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  ref={profileImageInputRef}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+
+                    const reader = new FileReader()
+                    reader.readAsDataURL(file)
+                    reader.onload = (e) => {
+                      if (typeof e.target?.result !== 'string') return
+                      imageInputControl.change(e.target.result)
+
+                      setPreviewImageUrl(e.target.result)
+                    }
+                  }}
+                />
+                <Input {...getInputProps(imageUrl, { type: 'hidden' })} />
+                {newImageFile.errors?.map((error, index) => (
+                  <p className="text-sm text-destructive mt-1" key={index}>
+                    {error}
+                  </p>
+                ))}
               </div>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-    </BackButtonLayout>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name</Label>
+                <Input {...getInputProps(name, { type: 'text' })} />
+                {name.errors?.map((error, index) => (
+                  <p className="text-sm text-destructive mt-1" key={index}>
+                    {error}
+                  </p>
+                ))}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input {...getInputProps(email, { type: 'email' })} />
+                {email.errors?.map((error, index) => (
+                  <p className="text-sm text-destructive mt-1" key={index}>
+                    {error}
+                  </p>
+                ))}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  className="min-h-[100px]"
+                  {...getInputProps(bio, { type: 'text' })}
+                />
+                {bio.errors?.map((error, index) => (
+                  <p className="text-sm text-destructive mt-1" key={index}>
+                    {error}
+                  </p>
+                ))}
+              </div>
+              {user?.provider === 'Credentials' && (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full"
+                  type="button"
+                >
+                  <Link to={`/${profile.id}/password_change`}>
+                    Change Password
+                  </Link>
+                </Button>
+              )}
+              <Button
+                className="w-full"
+                type="submit"
+                disabled={navigation.state === 'submitting'}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </Button>
+            </div>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

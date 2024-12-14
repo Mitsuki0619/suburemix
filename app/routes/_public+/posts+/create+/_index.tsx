@@ -8,31 +8,25 @@ import {
 import { useActionData, useLoaderData } from '@remix-run/react'
 import { jsonWithError, jsonWithSuccess, redirectWithError } from 'remix-toast'
 import { z } from 'zod'
-import { zx } from 'zodix'
 
-import { BlogEditor } from '~/features/blogs/BlogEditor'
+import { PostEditor } from '~/features/posts/PostEditor'
 import { getAuthenticator } from '~/services/auth/auth.server'
-import { getBlog } from '~/services/blog/getBlog.server'
-import { getCategories } from '~/services/blog/getCategories.server'
-import { updateBlog } from '~/services/blog/updateBlog.server'
+import { createPost } from '~/services/posts/createPost.server'
+import { getCategories } from '~/services/posts/getCategories.server'
 
-const patchBlogSchema = z.object({
+const createPostSchema = z.object({
   title: z.string({ required_error: 'Title is required' }),
   categories: z.array(z.string()),
   content: z.string({ required_error: 'Content is required' }),
   published: z.boolean().default(false),
 })
 
-export const loader = async ({
-  context,
-  request,
-  params,
-}: LoaderFunctionArgs) => {
+export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
   if (!user) {
     return redirectWithError('/', {
-      message: 'You must be signed in to edit a blog',
+      message: 'You must be signed in to create a post',
     })
   }
   const categories = await getCategories(context)
@@ -40,38 +34,26 @@ export const loader = async ({
     value: category.id.toString(),
     label: category.name,
   }))
-  const { blogId } = zx.parseParams(params, {
-    blogId: z.preprocess((v) => Number(v), z.number()),
-  })
-  const blog = await getBlog(context, blogId, user.id)
-  return json({ categoriesOptions, blog })
+  return json({ categoriesOptions })
 }
 
-export const action = async ({
-  context,
-  request,
-  params,
-}: ActionFunctionArgs) => {
+export const action = async ({ context, request }: ActionFunctionArgs) => {
   const formData = await request.formData()
-  const submission = parseWithZod(formData, { schema: patchBlogSchema })
+  const submission = parseWithZod(formData, { schema: createPostSchema })
   const { authenticator } = getAuthenticator(context)
   const user = await authenticator.isAuthenticated(request)
-  const { blogId } = zx.parseParams(params, {
-    blogId: z.preprocess((v) => Number(v), z.number()),
-  })
   if (!user) {
     return jsonWithError(
       { result: submission.reply() },
       {
-        message: 'You must be signed in to edit a blog',
+        message: 'You must be signed in to create a post',
       }
     )
   }
   if (submission.status !== 'success') {
     return json({ result: submission.reply() })
   }
-  await updateBlog(context, {
-    id: blogId,
+  await createPost(context, {
     title: String(formData.get('title')),
     categories: formData.getAll('categories').map(Number),
     content: String(formData.get('content')),
@@ -79,36 +61,34 @@ export const action = async ({
     userId: user.id,
   })
   return jsonWithSuccess(
-    { result: submission.reply() },
+    { result: submission.reply({ resetForm: true }) },
     {
-      message: 'Blog updated successfully',
-      description: 'Your blog has been updated successfully',
+      message: 'Post created successfully',
+      description: 'Your post has been created successfully',
     }
   )
 }
-
 export default function Index() {
-  const { categoriesOptions, blog } = useLoaderData<typeof loader>()
+  const { categoriesOptions } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
-
   const [form, fields] = useForm({
     lastResult: actionData?.result,
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: patchBlogSchema })
+      return parseWithZod(formData, { schema: createPostSchema })
     },
     defaultValue: {
-      title: blog.title,
-      content: blog.content,
-      categories: blog.categories.map((category) => category.id.toString()),
-      published: blog.published,
+      title: '',
+      content: '',
+      categories: [],
+      published: false,
     },
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',
   })
   return (
     <>
-      <BlogEditor
-        type="edit"
+      <PostEditor
+        type="create"
         title={fields.title}
         content={fields.content}
         categories={fields.categories}
