@@ -28,6 +28,8 @@ import { Switch } from '~/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { Textarea } from '~/components/ui/textarea'
 
+import styles from './markdown.module.css'
+
 interface Props {
   type: 'create' | 'edit'
   form: FormMetadata<{
@@ -284,7 +286,7 @@ export const PostEditor = ({
               <TabsContent value="preview">
                 <h1>{title.value}</h1>
                 <div className="prose max-w-none dark:prose-invert">
-                  <ReactMarkdown>
+                  <ReactMarkdown className={styles.md}>
                     {interactiveInputValues.content}
                   </ReactMarkdown>
                 </div>

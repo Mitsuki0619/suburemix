@@ -106,31 +106,6 @@ export default function Index() {
         </CardHeader>
         <CardContent className="space-y-6">
           <p className="text-center whitespace-pre-wrap">{bio}</p>
-          {/* <div className="flex flex-wrap justify-center gap-2">
-            {location && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {location}
-              </Badge>
-            )}
-            {website && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <LinkIcon className="w-3 h-3" />
-                <a
-                  href={website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  {new URL(website).hostname}
-                </a>
-              </Badge>
-            )}
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <CalendarDays className="w-3 h-3" />
-              Joined {joinDate}
-            </Badge>
-          </div> */}
           {me?.id === id && (
             <div className="flex justify-center mt-4">
               <Button asChild>
@@ -150,7 +125,11 @@ export default function Index() {
                   <Card key={post.id}>
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-semibold">{post.title}</h3>
+                        <Link to={`/posts/${post.id}`}>
+                          <h3 className="text-xl font-semibold">
+                            {post.title}
+                          </h3>
+                        </Link>
                         <div className="flex space-x-2">
                           <Button
                             variant="ghost"
