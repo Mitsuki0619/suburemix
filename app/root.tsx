@@ -12,9 +12,14 @@ import {
   Scripts,
   useLoaderData,
   Outlet,
+  useRouteError,
+  isRouteErrorResponse,
+  Link,
 } from '@remix-run/react'
 import { useEffect } from 'react'
 import { getToast } from 'remix-toast'
+
+import { Button } from '~/components/ui/button'
 
 import { Toaster } from './components/ui/toaster'
 import { toast as showToast } from './hooks/use-toast'
@@ -69,4 +74,36 @@ export default function App() {
   }, [toast])
 
   return <Outlet />
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError()
+
+  let errorMessage: string
+
+  if (isRouteErrorResponse(error)) {
+    errorMessage = error.data || error.statusText
+  } else if (error instanceof Error) {
+    errorMessage = error.message
+  } else if (typeof error === 'string') {
+    errorMessage = error
+  } else {
+    console.error(error)
+    errorMessage = 'Unknown error'
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4">
+      <h1 className="text-4xl font-bold mb-4">Oops! Something went wrong</h1>
+      <p className="text-xl mb-8 text-center">{errorMessage}</p>
+      <div className="space-x-4">
+        <Button asChild>
+          <Link to="/">Go to Homepage</Link>
+        </Button>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Try Again
+        </Button>
+      </div>
+    </div>
+  )
 }
