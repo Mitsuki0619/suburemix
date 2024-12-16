@@ -6,7 +6,11 @@ import {
   LoaderFunctionArgs,
 } from '@remix-run/cloudflare'
 import { useActionData, useLoaderData } from '@remix-run/react'
-import { jsonWithError, jsonWithSuccess, redirectWithError } from 'remix-toast'
+import {
+  jsonWithError,
+  redirectWithError,
+  redirectWithSuccess,
+} from 'remix-toast'
 import { z } from 'zod'
 
 import { PostEditor } from '~/features/posts/PostEditor'
@@ -53,20 +57,17 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
   if (submission.status !== 'success') {
     return json({ result: submission.reply() })
   }
-  await createPost(context, {
+  const newPost = await createPost(context, {
     title: String(formData.get('title')),
     categories: formData.getAll('categories').map(Number),
     content: String(formData.get('content')),
     published: Boolean(formData.get('published')),
     userId: user.id,
   })
-  return jsonWithSuccess(
-    { result: submission.reply({ resetForm: true }) },
-    {
-      message: 'Post created successfully',
-      description: 'Your post has been created successfully',
-    }
-  )
+  return redirectWithSuccess(`/posts/${newPost.id}`, {
+    message: 'Post created successfully',
+    description: 'Your post has been created successfully',
+  })
 }
 export default function Index() {
   const { categoriesOptions } = useLoaderData<typeof loader>()

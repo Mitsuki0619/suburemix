@@ -6,7 +6,11 @@ import {
   LoaderFunctionArgs,
 } from '@remix-run/cloudflare'
 import { useActionData, useLoaderData } from '@remix-run/react'
-import { jsonWithError, jsonWithSuccess, redirectWithError } from 'remix-toast'
+import {
+  jsonWithError,
+  redirectWithError,
+  redirectWithSuccess,
+} from 'remix-toast'
 import { z } from 'zod'
 import { zx } from 'zodix'
 
@@ -70,7 +74,7 @@ export const action = async ({
   if (submission.status !== 'success') {
     return json({ result: submission.reply() })
   }
-  await updatePost(context, {
+  const newPost = await updatePost(context, {
     id: postId,
     title: String(formData.get('title')),
     categories: formData.getAll('categories').map(Number),
@@ -78,13 +82,10 @@ export const action = async ({
     published: Boolean(formData.get('published')),
     userId: user.id,
   })
-  return jsonWithSuccess(
-    { result: submission.reply() },
-    {
-      message: 'Post updated successfully',
-      description: 'Your post has been updated successfully',
-    }
-  )
+  return redirectWithSuccess(`/posts/${newPost.id}`, {
+    message: 'Post updated successfully',
+    description: 'Your post has been updated successfully',
+  })
 }
 
 export default function Index() {
