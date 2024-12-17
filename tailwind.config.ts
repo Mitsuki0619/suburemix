@@ -7,14 +7,14 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          'Inter',
+          'Inter"',
           'ui-sans-serif',
           'system-ui',
           'sans-serif',
-          'Apple Color Emoji',
-          'Segoe UI Emoji',
-          'Segoe UI Symbol',
-          'Noto Color Emoji',
+          'Apple Color Emoji"',
+          'Segoe UI Emoji"',
+          'Segoe UI Symbol"',
+          'Noto Color Emoji"',
         ],
       },
       borderRadius: {
@@ -66,5 +66,5 @@ export default {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
 } satisfies Config
