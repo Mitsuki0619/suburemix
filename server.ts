@@ -7,6 +7,7 @@ import type {
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { Hono } from 'hono'
+import { basicAuth } from 'hono/basic-auth'
 import { poweredBy } from 'hono/powered-by'
 import { staticAssets } from 'remix-hono/cloudflare'
 import { remix } from 'remix-hono/handler'
@@ -18,6 +19,13 @@ const app = new Hono<{
 let handler: RequestHandler | undefined
 
 app.use(poweredBy())
+app.use(
+  '*',
+  basicAuth({
+    username: 'soobooremix',
+    password: 'asdfjkl;',
+  })
+)
 app.use(
   async (c, next) => {
     if (process.env.NODE_ENV !== 'development' || import.meta.env.PROD) {

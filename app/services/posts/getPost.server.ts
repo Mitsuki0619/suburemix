@@ -26,8 +26,8 @@ export const getPost = async (
   if (!post) {
     throw new Error('Post not found')
   }
-  if (userId && post.authorId !== userId && !post.published) {
-    throw new Error('Post not found')
+  if (userId && post.authorId !== userId) {
+    throw new Error('You do not have permission to view this post')
   }
   return post
 }
