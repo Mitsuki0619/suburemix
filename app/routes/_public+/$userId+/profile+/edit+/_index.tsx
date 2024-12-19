@@ -36,7 +36,7 @@ import { getPrivateProfile } from '~/services/profile/getPrivateProfile.server'
 import { updateProfile } from '~/services/profile/updateProfile.server'
 import { uploadProfileImage } from '~/services/profile/uploadProfileImage.server'
 
-const IMAGE_TYPES = ['image/jpg', 'image/png']
+const IMAGE_TYPES = ['image/jpg', 'image/png', 'image/jpeg']
 const MAX_IMAGE_SIZE = 5 // 5MB
 // バイト単位のサイズをメガバイト単位に変換する
 const sizeInMB = (sizeInBytes: number, decimalsNum = 2) => {

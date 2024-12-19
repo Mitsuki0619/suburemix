@@ -130,60 +130,62 @@ export default function Index() {
                             {post.title}
                           </h3>
                         </Link>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-muted-foreground hover:text-foreground"
-                            asChild
-                          >
-                            <Link to={`/posts/${post.id}/edit`}>
-                              <Pencil className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-muted-foreground hover:text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-4">
-                              <h4 className="font-semibold mb-2">
-                                Delete this post?
-                              </h4>
-                              <p className="text-sm text-muted-foreground mb-4">
-                                This action cannot be undone.
-                              </p>
-                              <div className="flex justify-end space-x-2">
-                                <PopoverClose asChild>
-                                  <Button variant="outline" size="sm">
-                                    Cancel
-                                  </Button>
-                                </PopoverClose>
-                                <fetcher.Form method="delete">
-                                  <Input
-                                    type="hidden"
-                                    name="id"
-                                    value={post.id}
-                                  />
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    type="submit"
-                                    disabled={fetcher.state === 'submitting'}
-                                    onClick={() => {}}
-                                  >
-                                    Delete
-                                  </Button>
-                                </fetcher.Form>
-                              </div>
-                            </PopoverContent>
-                          </Popover>
-                        </div>
+                        {me?.id === id && (
+                          <div className="flex space-x-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-muted-foreground hover:text-foreground"
+                              asChild
+                            >
+                              <Link to={`/posts/${post.id}/edit`}>
+                                <Pencil className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-muted-foreground hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-4">
+                                <h4 className="font-semibold mb-2">
+                                  Delete this post?
+                                </h4>
+                                <p className="text-sm text-muted-foreground mb-4">
+                                  This action cannot be undone.
+                                </p>
+                                <div className="flex justify-end space-x-2">
+                                  <PopoverClose asChild>
+                                    <Button variant="outline" size="sm">
+                                      Cancel
+                                    </Button>
+                                  </PopoverClose>
+                                  <fetcher.Form method="delete">
+                                    <Input
+                                      type="hidden"
+                                      name="id"
+                                      value={post.id}
+                                    />
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      type="submit"
+                                      disabled={fetcher.state === 'submitting'}
+                                      onClick={() => {}}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </fetcher.Form>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        )}
                       </div>
                       <p className="text-muted-foreground mb-2">
                         {post.content.slice(0, 100)}
