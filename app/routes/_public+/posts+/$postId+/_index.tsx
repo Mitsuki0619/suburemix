@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from '@remix-run/cloudflare'
+import { LoaderFunctionArgs, MetaFunction } from '@remix-run/cloudflare'
 import { json, Link, useLoaderData } from '@remix-run/react'
 import { CalendarIcon } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
@@ -19,7 +19,19 @@ export const loader = async ({ context, params }: LoaderFunctionArgs) => {
   return json(post)
 }
 
-export default function Index() {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    {
+      title: `Post - ${data?.title} | 素振りみっくす -suburemix-`,
+    },
+    {
+      name: 'description',
+      content: `Post Page - ${data?.title}`,
+    },
+  ]
+}
+
+export default function PostDetailPage() {
   const post = useLoaderData<typeof loader>()
 
   return (

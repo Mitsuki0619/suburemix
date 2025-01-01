@@ -4,6 +4,7 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
+  MetaFunction,
 } from '@remix-run/cloudflare'
 import { useActionData, useLoaderData } from '@remix-run/react'
 import {
@@ -69,7 +70,20 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
     description: 'Your post has been created successfully',
   })
 }
-export default function Index() {
+
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: 'Create Post | 素振りみっくす -suburemix-',
+    },
+    {
+      name: 'description',
+      content: 'Create a new post on suburemix',
+    },
+  ]
+}
+
+export default function CreatePostPage() {
   const { categoriesOptions } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
   const [form, fields] = useForm({
