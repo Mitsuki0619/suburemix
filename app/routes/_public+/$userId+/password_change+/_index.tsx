@@ -1,6 +1,10 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/cloudflare'
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from '@remix-run/cloudflare'
 import { Form, useActionData, useNavigation } from '@remix-run/react'
 import { jsonWithError, jsonWithSuccess, redirectWithError } from 'remix-toast'
 import { z } from 'zod'
@@ -118,7 +122,19 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   )
 }
 
-export default function Index() {
+export const meta: MetaFunction<typeof loader> = () => {
+  return [
+    {
+      title: 'Change Password | 素振りみっくす -suburemix-',
+    },
+    {
+      name: 'description',
+      content: 'Change your password on suburemix',
+    },
+  ]
+}
+
+export default function PasswordChangePage() {
   const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
   const [form, { currentPassword, newPassword, confirmNewPassword }] = useForm({

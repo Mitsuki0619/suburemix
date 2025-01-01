@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from '@remix-run/cloudflare'
+import { LoaderFunctionArgs, MetaFunction } from '@remix-run/cloudflare'
 import {
   Form,
   useLoaderData,
@@ -55,6 +55,18 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
     totalPages,
     categories,
   }
+}
+
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: 'Home | 素振りみっくす -suburemix-',
+    },
+    {
+      name: 'description',
+      content: 'Home page of suburemix',
+    },
+  ]
 }
 
 export default function HomePage() {

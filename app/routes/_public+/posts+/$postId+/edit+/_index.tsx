@@ -4,6 +4,7 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
+  MetaFunction,
 } from '@remix-run/cloudflare'
 import { useActionData, useLoaderData } from '@remix-run/react'
 import {
@@ -51,6 +52,18 @@ export const loader = async ({
   return json({ categoriesOptions, post })
 }
 
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: 'Edit Post | 素振りみっくす -suburemix-',
+    },
+    {
+      name: 'description',
+      content: 'Edit Post Page',
+    },
+  ]
+}
+
 export const action = async ({
   context,
   request,
@@ -88,7 +101,7 @@ export const action = async ({
   })
 }
 
-export default function Index() {
+export default function EditPostPage() {
   const { categoriesOptions, post } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
 

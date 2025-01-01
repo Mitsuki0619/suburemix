@@ -5,6 +5,7 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
+  MetaFunction,
 } from '@remix-run/cloudflare'
 import {
   useActionData,
@@ -96,7 +97,19 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
   return json(messages)
 }
 
-export default function Index() {
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: 'Chat | 素振りみっくす -suburemix-',
+    },
+    {
+      name: 'description',
+      content: 'Chat with other users on suburemix',
+    },
+  ]
+}
+
+export default function ChatPage() {
   const actionData = useActionData<typeof action>()
   const messages = useLoaderData<typeof loader>()
   const user = useOutletContext<UserForClient>()
