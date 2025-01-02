@@ -9,14 +9,26 @@ import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Badge } from '~/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import styles from '~/features/posts/markdown.module.css'
-import { getPublicPost } from '~/services/posts/getPublicPost.server'
+import { getAuthenticator } from '~/services/auth/auth.server'
+import { getPost } from '~/services/posts/getPost'
 
-export const loader = async ({ context, params }: LoaderFunctionArgs) => {
+export const loader = async ({
+  context,
+  params,
+  request,
+}: LoaderFunctionArgs) => {
+  const { authenticator } = getAuthenticator(context)
+  const user = await authenticator.isAuthenticated(request)
   const { postId } = zx.parseParams(params, {
     postId: z.preprocess((v) => Number(v), z.number()),
   })
-  const post = await getPublicPost(context, postId)
-  return json(post)
+  const post = await getPost(context, postId, user?.id)
+  return json({
+    ...post,
+    publishedAt: post.publishedAt
+      ? new Date(post.publishedAt).toLocaleDateString()
+      : undefined,
+  })
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -63,9 +75,7 @@ export default function PostDetailPage() {
                 Published at
                 <span className="flex items-center gap-1 ml-3">
                   <CalendarIcon className="mr-1 h-3 w-3" />
-                  <time dateTime={post.publishedAt}>
-                    {new Date(post.publishedAt).toLocaleDateString()}
-                  </time>
+                  <time dateTime={post.publishedAt}>{post.publishedAt}</time>
                 </span>
               </div>
             )}
