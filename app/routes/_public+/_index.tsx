@@ -1,10 +1,5 @@
 import { LoaderFunctionArgs, MetaFunction } from '@remix-run/cloudflare'
-import {
-  Link,
-  useFetcher,
-  useLoaderData,
-  useSearchParams,
-} from '@remix-run/react'
+import { Form, Link, useLoaderData, useSearchParams } from '@remix-run/react'
 import {
   ArrowRightIcon,
   CalendarIcon,
@@ -69,35 +64,32 @@ export const meta: MetaFunction = () => {
 }
 
 export default function HomePage() {
-  const fetcher = useFetcher<typeof loader>()
-
   const { posts, totalPages, currentPage } = useLoaderData<typeof loader>()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [postsData, setPostsData] = useState({
     posts,
     totalPages,
     currentPage: currentPage || 1,
   })
   useEffect(() => {
-    const fetcherData = fetcher.data
-    if (!fetcherData || fetcher.state === 'loading') return
+    if (!posts) return
     setPostsData((prev) => {
       return {
         ...prev,
         posts:
-          prev.currentPage !== fetcherData.currentPage
-            ? [...prev.posts, ...fetcherData.posts]
-            : fetcherData.posts,
-        totalPages: fetcherData.totalPages,
-        currentPage: fetcherData.currentPage,
+          currentPage !== 1 && prev.currentPage !== currentPage
+            ? [...prev.posts, ...posts]
+            : posts,
+        totalPages,
+        currentPage: currentPage || 1,
       }
     })
-  }, [currentPage, fetcher.data, fetcher.state])
+  }, [currentPage, posts, totalPages])
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
-        <fetcher.Form className="mb-8" method="get">
+        <Form className="mb-8" method="get">
           <div className="flex flex-col gap-4">
             <div className="flex gap-4">
               <div className="flex-grow relative">
@@ -118,7 +110,7 @@ export default function HomePage() {
               </Button>
             </div>
           </div>
-        </fetcher.Form>
+        </Form>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {postsData.posts.map((post) => (
@@ -168,13 +160,23 @@ export default function HomePage() {
         </div>
 
         {postsData.currentPage < postsData.totalPages && (
-          <fetcher.Form method="get">
-            <div className="mt-8 text-center">
-              <Button name="page" value={postsData.currentPage + 1}>
-                Load More
-              </Button>
-            </div>
-          </fetcher.Form>
+          <div className="mt-8 text-center">
+            <Button
+              onClick={() =>
+                setSearchParams(
+                  {
+                    page: (postsData.currentPage + 1).toString(),
+                  },
+                  {
+                    preventScrollReset: true,
+                  }
+                )
+              }
+            >
+              Load More
+              {/* <Link to={urlWithPage}>Load More</Link> */}
+            </Button>
+          </div>
         )}
       </div>
     </div>
