@@ -49,8 +49,11 @@ export const getPosts = async ({
       },
     })) / request.limit
   )
+
+  const currentPage = request.offset / request.limit + 1
   return {
     posts,
     totalPages,
+    currentPage,
   }
 }

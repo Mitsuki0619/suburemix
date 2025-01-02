@@ -1,24 +1,21 @@
 import { LoaderFunctionArgs, MetaFunction } from '@remix-run/cloudflare'
 import {
-  Form,
+  Link,
+  useFetcher,
   useLoaderData,
   useSearchParams,
-  useSubmit,
-  Link,
 } from '@remix-run/react'
 import {
   ArrowRightIcon,
   CalendarIcon,
   ClockIcon,
   SearchIcon,
-  X,
 } from 'lucide-react'
-import { useEffect, useState, Fragment } from 'react'
+import { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { zx } from 'zodix'
 
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
-import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import {
   Card,
@@ -28,13 +25,12 @@ import {
   CardTitle,
 } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
-import { getCategories } from '~/services/posts/getCategories.server'
 import { getPosts } from '~/services/posts/getPosts.server'
 
 const getPostsSchema = z.object({
   search: z.string().optional(),
   categoryId: z.preprocess((v) => Number(v), z.number()).optional(),
-  page: z.number().optional(),
+  page: z.preprocess((v) => Number(v), z.number()).optional(),
 })
 
 export const loader = async ({ context, request }: LoaderFunctionArgs) => {
@@ -45,15 +41,18 @@ export const loader = async ({ context, request }: LoaderFunctionArgs) => {
   const offset = (page - 1) * limit
   const search = queries.search
   const categoryId = queries.categoryId
-  const { posts, totalPages } = await getPosts({
+  const { posts, totalPages, currentPage } = await getPosts({
     context,
     request: { limit, offset, search, categoryId },
   })
-  const categories = await getCategories(context)
+  const formattedPosts = posts.map((post) => ({
+    ...post,
+    publishedAt: new Date(post.publishedAt ?? '').toLocaleDateString(),
+  }))
   return {
-    posts,
+    posts: formattedPosts,
     totalPages,
-    categories,
+    currentPage,
   }
 }
 
@@ -70,44 +69,35 @@ export const meta: MetaFunction = () => {
 }
 
 export default function HomePage() {
-  const { posts, totalPages, categories } = useLoaderData<typeof loader>()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const submit = useSubmit()
-  const [localPosts, setLocalPosts] = useState(posts)
-  const currentPage = Number(searchParams.get('page')) || 1
+  const fetcher = useFetcher<typeof loader>()
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    searchParams.set('search', e.currentTarget.search.value)
-    setSearchParams(searchParams)
-    submit(searchParams)
-  }
-
-  const handleCategoryClick = (categoryId: string) => {
-    if (searchParams.get('categoryId') === categoryId) {
-      searchParams.delete('categoryId')
-      setSearchParams(searchParams)
-      submit(searchParams)
-      return
-    }
-    searchParams.set('categoryId', categoryId)
-    setSearchParams(searchParams)
-    submit(searchParams)
-  }
-
-  const handleLoadMore = () => {
-    const nextPage = currentPage + 1
-    searchParams.set('page', nextPage.toString())
-    setSearchParams(searchParams)
-    submit(searchParams)
-  }
+  const { posts, totalPages, currentPage } = useLoaderData<typeof loader>()
+  const [searchParams] = useSearchParams()
+  const [postsData, setPostsData] = useState({
+    posts,
+    totalPages,
+    currentPage: currentPage || 1,
+  })
   useEffect(() => {
-    setLocalPosts(posts)
-  }, [posts])
+    const fetcherData = fetcher.data
+    if (!fetcherData || fetcher.state === 'loading') return
+    setPostsData((prev) => {
+      return {
+        ...prev,
+        posts:
+          prev.currentPage !== fetcherData.currentPage
+            ? [...prev.posts, ...fetcherData.posts]
+            : fetcherData.posts,
+        totalPages: fetcherData.totalPages,
+        currentPage: fetcherData.currentPage,
+      }
+    })
+  }, [currentPage, fetcher.data, fetcher.state])
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-b dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
-        <Form onSubmit={handleSearch} className="mb-8">
+        <fetcher.Form className="mb-8" method="get">
           <div className="flex flex-col gap-4">
             <div className="flex gap-4">
               <div className="flex-grow relative">
@@ -127,42 +117,11 @@ export default function HomePage() {
                 Search
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <Fragment key={category.id.toString()}>
-                  <label>
-                    <Badge
-                      key={category.id.toString()}
-                      variant={
-                        searchParams.get('categoryId') ===
-                        category.id.toString()
-                          ? 'default'
-                          : 'outline'
-                      }
-                      className="cursor-pointer text-sm py-1 px-2"
-                      defaultChecked={
-                        searchParams.get('categoryId') ===
-                        category.id.toString()
-                      }
-                      onClick={() =>
-                        handleCategoryClick(category.id.toString())
-                      }
-                    >
-                      {category.name}
-                      {searchParams.get('categoryId') ===
-                        category.id.toString() && (
-                        <X className="ml-1 h-3 w-3" />
-                      )}
-                    </Badge>
-                  </label>
-                </Fragment>
-              ))}
-            </div>
           </div>
-        </Form>
+        </fetcher.Form>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {localPosts.map((post) => (
+          {postsData.posts.map((post) => (
             <Card key={post.id} className="flex flex-col">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold">
@@ -187,8 +146,8 @@ export default function HomePage() {
                     </p>
                     <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
                       <CalendarIcon className="mr-1 h-3 w-3" />
-                      <time dateTime={post.publishedAt ?? ''}>
-                        {new Date(post.publishedAt ?? '').toLocaleDateString()}
+                      <time dateTime={post.publishedAt}>
+                        {post.publishedAt}
                       </time>
                       <span className="mx-1">•</span>
                       <ClockIcon className="mr-1 h-3 w-3" />
@@ -208,10 +167,14 @@ export default function HomePage() {
           ))}
         </div>
 
-        {currentPage < totalPages && (
-          <div className="mt-8 text-center">
-            <Button onClick={handleLoadMore}>Load More</Button>
-          </div>
+        {postsData.currentPage < postsData.totalPages && (
+          <fetcher.Form method="get">
+            <div className="mt-8 text-center">
+              <Button name="page" value={postsData.currentPage + 1}>
+                Load More
+              </Button>
+            </div>
+          </fetcher.Form>
         )}
       </div>
     </div>
