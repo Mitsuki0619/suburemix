@@ -9,6 +9,7 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
+  MetaFunction,
 } from '@remix-run/cloudflare'
 import {
   Form,
@@ -181,7 +182,19 @@ export const loader = async ({
   return json({ profile })
 }
 
-export default function Index() {
+export const meta: MetaFunction<typeof loader> = () => {
+  return [
+    {
+      title: `Edit Profile | 素振りみっくす -suburemix-`,
+    },
+    {
+      name: 'description',
+      content: 'Edit your profile on suburemix',
+    },
+  ]
+}
+
+export default function EditProfilePage() {
   const user = useOutletContext<UserForClient>()
   const { profile } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()

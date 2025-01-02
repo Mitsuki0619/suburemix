@@ -257,6 +257,7 @@ export const PostEditor = ({
                     className="h-[800px] text-lg font-mono resize-none"
                     ref={contentInputRef}
                     {...contentProps}
+                    defaultValue={undefined}
                     value={interactiveInputValues.content}
                     key={contentProps.key}
                     onChange={(e) =>

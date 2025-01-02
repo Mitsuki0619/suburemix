@@ -4,6 +4,7 @@ import {
   ActionFunctionArgs,
   json,
   LoaderFunctionArgs,
+  MetaFunction,
 } from '@remix-run/cloudflare'
 import { Link, useFetcher, useLoaderData } from '@remix-run/react'
 import { Clock, Edit, Pencil, Trash2 } from 'lucide-react'
@@ -75,7 +76,19 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   }
 }
 
-export default function Index() {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    {
+      title: `${data?.thisUser.name}'s Profile | 素振りみっくす -suburemix-`,
+    },
+    {
+      name: 'description',
+      content: `Profile page of ${data?.thisUser.name}`,
+    },
+  ]
+}
+
+export default function ProfilePage() {
   const {
     me,
     thisUser: { name, image, id, bio, posts },

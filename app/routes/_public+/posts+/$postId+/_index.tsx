@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from '@remix-run/cloudflare'
+import { LoaderFunctionArgs, MetaFunction } from '@remix-run/cloudflare'
 import { json, Link, useLoaderData } from '@remix-run/react'
 import { CalendarIcon } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
@@ -9,17 +9,41 @@ import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Badge } from '~/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import styles from '~/features/posts/markdown.module.css'
-import { getPublicPost } from '~/services/posts/getPublicPost.server'
+import { getAuthenticator } from '~/services/auth/auth.server'
+import { getPost } from '~/services/posts/getPost'
 
-export const loader = async ({ context, params }: LoaderFunctionArgs) => {
+export const loader = async ({
+  context,
+  params,
+  request,
+}: LoaderFunctionArgs) => {
+  const { authenticator } = getAuthenticator(context)
+  const user = await authenticator.isAuthenticated(request)
   const { postId } = zx.parseParams(params, {
     postId: z.preprocess((v) => Number(v), z.number()),
   })
-  const post = await getPublicPost(context, postId)
-  return json(post)
+  const post = await getPost(context, postId, user?.id)
+  return json({
+    ...post,
+    publishedAt: post.publishedAt
+      ? new Date(post.publishedAt).toLocaleDateString()
+      : undefined,
+  })
 }
 
-export default function Index() {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    {
+      title: `Post - ${data?.title} | 素振りみっくす -suburemix-`,
+    },
+    {
+      name: 'description',
+      content: `Post Page - ${data?.title}`,
+    },
+  ]
+}
+
+export default function PostDetailPage() {
   const post = useLoaderData<typeof loader>()
 
   return (
@@ -51,9 +75,7 @@ export default function Index() {
                 Published at
                 <span className="flex items-center gap-1 ml-3">
                   <CalendarIcon className="mr-1 h-3 w-3" />
-                  <time dateTime={post.publishedAt}>
-                    {new Date(post.publishedAt).toLocaleDateString()}
-                  </time>
+                  <time dateTime={post.publishedAt}>{post.publishedAt}</time>
                 </span>
               </div>
             )}
