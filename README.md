@@ -1,47 +1,52 @@
-# Welcome to Remix + Cloudflare!
+# suburemix 素振りみっくす
 
-- 📖 [Remix docs](https://remix.run/docs)
-- 📖 [Remix Cloudflare docs](https://remix.run/guides/vite#cloudflare)
+デプロイURL：https://ms-tech-blog-remix-485.pages.dev/
+※注意：supabaseは無料プランだとしばらく使わないと落ちるので、その影響でエラーが出て使えない可能性があります。
 
-## Development
+## 起動手順
+本リポジトリをクローン後、.dev.varsに環境変数を記述し、下記のコマンドを実行する。
 
-Run the dev server:
-
-```sh
-npm run dev
+```
+pnpm i
+pnpm dev
 ```
 
-To run Wrangler:
+※nodeはv22.11.0, pnpmは9.15.4
 
-```sh
-npm run build
-npm run start
-```
+## アプリの説明
 
-## Typegen
+ただひたすらRemixを素振り（技術の検証のことを指す）するために作ったブログアプリケーション
+ログイン認証（OIDC）、ブログの投稿・編集・削除・閲覧が可能なシンプルなCRUDアプリケーション
+なぞのチャット機能も搭載している（Socketとかは使ってないので本当にただ謎のチャットっぽいUIのCRUD機能というだけです）。
 
-Generate types for your Cloudflare bindings in `wrangler.toml`:
+## 主要選定技術と意見
 
-```sh
-npm run typegen
-```
+- React：Remixを素振りするのにVueやSvelteは使えない。
 
-You will need to rerun typegen whenever you make changes to `wrangler.toml`.
+- Remix：最近Next.jsがApp Routerやらキャッシュやらで世間を困惑させている昨今、その駆け込み寺的な立ち位置というのもあってこのRemixに人気に拍車がかかっている。使ってみたくなったので素振りすることにした。とはいえReact Routerを見てるとこのRemixも全く安定しそうにないが。。。と言っていた矢先React Router v7に統合され、またしても困惑した。
 
-## Deployment
+- Conform：サーバーアクションに対応しているのがこれだけっぽいのと、単純に以前使った際に体験が良かったため選定。React Hook Formが個人的にはあまり好きでないことからもConformは今後も使っていきたい。
 
-First, build your app for production:
+- zod：バリデーションに使用。軽量のvalibotも考えられたがまだzodが安牌な気がしたため選定。
 
-```sh
-npm run build
-```
+- TailwindCSS：正直プロダクトではCSS Modulesを素直に使いたいが、これは個人開発なので気楽にスタイリングできるTailwindを選定。プロダクトで使うなら気楽さではなくデザインシステムの利点を最大限に活用する使い方をしたい。
 
-Then, deploy your app to Cloudflare Pages:
+- ShadcnUI：これも個人開発であまりスタイリングに時間を割きたくなかったため選定。とはいえかなり開発者体験はいいと感じた。余談だが、base UIがでてきたのでradixからちゃんと移行されるのか心配。
 
-```sh
-npm run deploy
-```
+- Prisma：Drizzleという手段もあったが、一旦TypedSQLもでて勢いが出ているPrismaを選定。
 
-## Styling
+- Prisma Accelerate：PrismaはTCP接続ベースのORMライブラリだが、Cloudflare WorkersのエッジからDBにアクセスしたかったため、その場合TCPではなくHTTPベースとなり、それを実現するにはPrisma Accelerateが必要だったため導入。
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+**インフラ**
+
+- supabase：RDBがよかったのと、個人的には一番使いやすいBaasと感じていたため採用。
+
+- Cloudflare Pages/Workers：無料で早くて使いやすい。最高。
+
+**開発環境**
+- ESLint：安定のリンター。でももう以降はBiomeでいいと思う。唯一フックの依存配列のクイックフィイックスやプラグインの自由度に魅力を感じていたが、もうReact Compilerもあって依存配列書くことも少なくなりそうだし、Biomeもプラグイン対応するらしいしこれからは本当にBiomeでいいと思う。
+- React Compiler：まだベータとはいえ、導入するメリットのほうがでかいと感じるため採用。もうプロダクトでも使っていいとは思ってる。
+
+## まだ改善が見込める点・未実装機能
+- React Routerに移行する
+- まともなエラーハンドリング
