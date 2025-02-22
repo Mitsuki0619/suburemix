@@ -1,47 +1,54 @@
-# Welcome to Remix + Cloudflare!
+# suburemix 素振りみっくす
 
-- 📖 [Remix docs](https://remix.run/docs)
-- 📖 [Remix Cloudflare docs](https://remix.run/guides/vite#cloudflare)
+本番運用中のURL：https://ms-tech-blog-remix-485.pages.dev/
 
-## Development
+※注意：supabaseは無料プランだとしばらく使わないと落ちるので、その影響でエラーが出て使えない可能性があります。
 
-Run the dev server:
+## 起動手順
+本リポジトリをクローン後、.dev.varsに環境変数を記述し、下記のコマンドを実行する。
 
-```sh
-npm run dev
+```
+pnpm i
+pnpm dev
 ```
 
-To run Wrangler:
+※nodeはv22.11.0, pnpmは9.15.4
 
-```sh
-npm run build
-npm run start
-```
+## アプリの説明
 
-## Typegen
+Remixを素振り（技術の検証のことを指す）するために作ったブログアプリケーション
 
-Generate types for your Cloudflare bindings in `wrangler.toml`:
+ログイン認証（OIDC）、ブログの投稿・編集・削除・閲覧が可能なシンプルなCRUDアプリケーション
 
-```sh
-npm run typegen
-```
+## 開発秘話
 
-You will need to rerun typegen whenever you make changes to `wrangler.toml`.
+## 主要選定技術と意見
 
-## Deployment
+- React：Remixを試したかったため選定。
 
-First, build your app for production:
+- Remix：Reactを専門とする身として、Remixは試しておかねばと感じていたため選定した。
 
-```sh
-npm run build
-```
+- Conform：サーバー側のアクションと同期できるのがこれだけっぽかったので選定。開発体験はかなり良かった。
 
-Then, deploy your app to Cloudflare Pages:
+- zod：バリデーションに使用。軽量のvalibotも考えられたが一旦zodに慣れたかったため選定。
 
-```sh
-npm run deploy
-```
+- TailwindCSS：開発でv0を活用しており、相性が良かったため選定。
 
-## Styling
+- ShadcnUI：開発でv0を活用しており、相性が良かったため選定。余談だが、base UIがでてきたのでradixからちゃんと移行されるのか心配。
 
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+- Prisma：Drizzleという手段もあったが、一旦TypedSQLもでて勢いが出ているPrismaを選定。
+
+- Prisma Accelerate：PrismaはTCP接続ベースのORMライブラリだが、Cloudflare WorkersのエッジからDBにアクセスしたく、そのためのHTTP接続が可能なPrisma Accelerateを導入。
+
+**インフラ**
+
+- supabase：RDBがよかったのと、個人的には一番使いやすいBaasと感じていたため採用。
+
+- Cloudflare Pages/Workers：無料で早くて使いやすい。最高。
+
+**開発環境**
+- ESLint：安定のリンター。ReactCompilerのプラグインを使いたかったため選定。
+- React Compiler：まだベータとはいえ、導入するメリットのほうがでかいと感じるため採用。もうプロダクトでも使っていいとは思ってる。
+
+## まだ改善が見込める点・未実装機能
+基本素振りが目的だったので特にないが、もうRemixはReact Routerに統合されたため、いずれReact Routerに移行したいところ。
